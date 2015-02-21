@@ -1,3 +1,4 @@
+{-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
 module Crypto.Classical.Types where
@@ -7,7 +8,7 @@ import Data.ByteString.Lazy (ByteString)
 
 ---
 
-class Cipher k a where
+class Cipher k a | a -> k where
   encrypt :: Key k => k -> ByteString -> a ByteString
   decrypt :: Key k => k -> ByteString -> a ByteString
 

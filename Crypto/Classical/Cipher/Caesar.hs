@@ -42,8 +42,15 @@ instance Cipher Z26 Caesar where
 
   decrypt (Z26 k) = encrypt (Z26 (-k))
 
+---
+
 foo :: IO SystemRNG
 foo = fmap cprgCreate createEntropyPool
+
+testIO :: IO (Caesar B.ByteString)
+testIO = do
+  k <- fmap key foo
+  return $ encrypt k "I QUITE ENJOY THIS" >>= decrypt k
 
 test :: Z26 -> Caesar B.ByteString
 test k = encrypt k "abcdefghijklmnopqrstuvwxyz" >>= decrypt k
