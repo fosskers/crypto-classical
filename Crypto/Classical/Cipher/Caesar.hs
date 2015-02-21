@@ -33,11 +33,11 @@ instance Monad Caesar where
 
 instance Cipher Z26 Caesar where
   encrypt (Z26 k) = Caesar . B.map f
-    where f ' ' = ' '
-          f c | isLower c = f $ toUpper c
+    where f c | isLower c = f $ toUpper c
+              | not $ isLetter c = c
               | otherwise = toLetter ((toInt c + k') `mod` 26)
-          toLetter l = chr $ ord 'a' + l
-          toInt    c = ord c - ord 'a'
+          toLetter l = chr $ ord 'A' + l
+          toInt    c = ord c - ord 'A'
           k' = fromIntegral k
 
   decrypt (Z26 k) = encrypt (Z26 (-k))
@@ -45,7 +45,5 @@ instance Cipher Z26 Caesar where
 foo :: IO SystemRNG
 foo = fmap cprgCreate createEntropyPool
 
-test :: IO (Caesar B.ByteString)
-test = do
-  k <- fmap key foo :: IO Z26  -- I don't want to have to state this.
-  return $ encrypt k "Encrypt me" >>= decrypt k
+test :: Z26 -> Caesar B.ByteString
+test k = encrypt k "abcdefghijklmnopqrstuvwxyz" >>= decrypt k
