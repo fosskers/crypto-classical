@@ -1,3 +1,5 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
+
 module Crypto.Classical.Types where
 
 import Crypto.Random (CPRG)
@@ -5,7 +7,7 @@ import Data.ByteString.Lazy (ByteString)
 
 ---
 
-class Cipher a where
+class Cipher k a where
   encrypt :: Key k => k -> ByteString -> a ByteString
   decrypt :: Key k => k -> ByteString -> a ByteString
 
