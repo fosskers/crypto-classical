@@ -49,10 +49,12 @@ library
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.7 && <4.8
                      , bytestring
+                     , containers >= 0.5.5.1
                      , crypto-numbers >= 0.2.7
                      , crypto-random
                      , lens >= 4.7
                      , modular-arithmetic >= 1.2.0.0
+                     , random-shuffle >= 0.0.4
                      , transformers >= 0.4.2.0
   
   -- Directories containing source files.

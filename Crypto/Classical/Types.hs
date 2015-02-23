@@ -7,12 +7,15 @@
 
 module Crypto.Classical.Types where
 
-import Control.Lens
-import Crypto.Number.Generate
-import Crypto.Random (CPRG)
-import Data.ByteString.Lazy (ByteString)
-import Data.List ((\\))
-import Data.Modular
+import           Control.Lens
+import           Crypto.Classical.Util
+import           Crypto.Number.Generate
+import           Crypto.Random (CPRG)
+import           Data.ByteString.Lazy (ByteString)
+import           Data.List ((\\))
+import           Data.Map.Lazy (Map)
+import qualified Data.Map.Lazy as M
+import           Data.Modular
 
 ---
 
@@ -38,3 +41,9 @@ instance Key (ℤ/26,ℤ/26) where
   key g = (a,b) & _1 %~ toMod
     where a = ([1,3..25] \\ [13]) !! (fromIntegral . fst . generateMax g $ 11)
           b = key g
+
+-- | Key for Substitution Cipher. The Key is the Mapping itself.
+instance Key (Map Char Char) where
+  key g = M.fromList $ zip ['a'..'z'] $ shuffle g ['a'..'z']
+
+-- Take two lists of ['a'..'z'], shuffle one,
