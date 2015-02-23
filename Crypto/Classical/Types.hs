@@ -34,6 +34,6 @@ instance Key (ℤ/26) where
 -- | For Affine Ciphers.
 -- `a` must be coprime with 26.
 instance Key (ℤ/26,ℤ/26) where
-  key g = (a,b) & both %~ toMod
+  key g = (a,b) & _1 %~ toMod
     where a = ([1,3..25] \\ [13]) !! (fromIntegral . fst . generateMax g $ 11)
-          b = fst $ generateMax g 26
+          b = key g
