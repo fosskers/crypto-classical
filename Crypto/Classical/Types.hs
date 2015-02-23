@@ -32,7 +32,8 @@ instance Key (ℤ/26) where
   key g = toMod . fst . generateMax g $ 26
 
 -- | For Affine Ciphers.
--- `a` must be coprime with 26.
+-- `a` must be coprime with 26, or else a^-1 won't exist and
+-- and we can't decrypt.
 instance Key (ℤ/26,ℤ/26) where
   key g = (a,b) & _1 %~ toMod
     where a = ([1,3..25] \\ [13]) !! (fromIntegral . fst . generateMax g $ 11)

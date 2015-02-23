@@ -10,6 +10,7 @@ module Crypto.Classical.Cipher.Caesar where
 
 import           Control.Applicative
 import           Crypto.Classical.Types
+import           Crypto.Classical.Util
 import           Crypto.Random
 import           Data.ByteString.Lazy.Char8 (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as B
@@ -32,9 +33,7 @@ instance Cipher (ℤ/26) Caesar where
   encrypt k = Caesar . B.map f
     where f c | isLower c = f $ toUpper c
               | not $ isLetter c = c
-              | otherwise = toLetter . fromIntegral . unMod $ (toInt c + k)
-          toLetter l = chr $ ord 'A' + l
-          toInt    c = toMod . toInteger $ ord c - ord 'A'
+              | otherwise = toLetter $ toInt c + k
 
   decrypt k = encrypt (-k)
 
