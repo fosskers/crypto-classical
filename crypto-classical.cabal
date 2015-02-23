@@ -52,6 +52,7 @@ library
                      , crypto-numbers >= 0.2.7
                      , crypto-random
                      , lens >= 4.7
+                     , modular-arithmetic >= 1.2.0.0
                      , transformers >= 0.4.2.0
   
   -- Directories containing source files.
