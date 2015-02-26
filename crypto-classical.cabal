@@ -38,7 +38,10 @@ cabal-version:       >=1.10
 
 
 library
-  exposed-modules: Crypto.Classical.Types
+  exposed-modules:     Crypto.Classical.Types
+                     , Crypto.Classical.Shuffle
+                     , Crypto.Classical.Cipher.Caesar
+                     , Crypto.Classical.Cipher.Affine
   
   -- Modules included in this library but not exported.
   -- other-modules:       
@@ -54,6 +57,7 @@ library
                      , crypto-random
                      , lens >= 4.7
                      , modular-arithmetic >= 1.2.0.0
+                     , random
                      , random-shuffle >= 0.0.4
                      , transformers >= 0.4.2.0
   

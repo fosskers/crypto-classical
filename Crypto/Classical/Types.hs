@@ -8,7 +8,7 @@
 module Crypto.Classical.Types where
 
 import           Control.Lens
-import           Crypto.Classical.Util
+import           Crypto.Classical.Shuffle
 import           Crypto.Number.Generate
 import           Crypto.Random (CPRG)
 import           Data.ByteString.Lazy (ByteString)
@@ -44,6 +44,4 @@ instance Key (ℤ/26,ℤ/26) where
 
 -- | Key for Substitution Cipher. The Key is the Mapping itself.
 instance Key (Map Char Char) where
-  key g = M.fromList $ zip ['a'..'z'] $ shuffle g ['a'..'z']
-
--- Take two lists of ['a'..'z'], shuffle one,
+  key g = M.fromList $ zip ['a'..'z'] $ shuffle g 26 ['a'..'z']
