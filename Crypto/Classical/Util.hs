@@ -3,12 +3,14 @@
 
 module Crypto.Classical.Util where
 
-import Control.Lens
-import Crypto.Number.Generate
-import Crypto.Number.ModArithmetic (inverseCoprimes)
-import Crypto.Random
-import Data.Char
-import Data.Modular
+import           Control.Lens
+import           Crypto.Number.Generate
+import           Crypto.Number.ModArithmetic (inverseCoprimes)
+import           Crypto.Random
+import           Data.Char
+import           Data.Map.Lazy (Map)
+import qualified Data.Map.Lazy as M
+import           Data.Modular
 
 ---
 
@@ -31,3 +33,8 @@ rseq g n = rseq' g (n - 1) ^.. traverse . _1
         rseq' _ 0  = []
         rseq' g' i = (j, g') : rseq' g'' (i - 1)
           where (j, g'') = generateBetween g' 0 i
+
+-- | Invert a Map. Keys become values, values become keys.
+-- Note that this operation may result in a smaller Map than the original.
+mapInverse :: Ord v => Map k v -> Map v k
+mapInverse = M.foldrWithKey (\k v acc -> M.insert v k acc) M.empty
