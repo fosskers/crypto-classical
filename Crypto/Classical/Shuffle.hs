@@ -3,7 +3,7 @@
 
 module Crypto.Classical.Shuffle ( shuffle ) where
 
-import Crypto.Number.Generate
+import Crypto.Classical.Util
 import Crypto.Random
 import Data.Function (fix)
 
@@ -32,23 +32,11 @@ buildTree = (fix growLevel) . (map Leaf)
         join l@(Leaf _)       r@(Node ct _ _)  = Node (ct + 1) l r
         join l@(Node ctl _ _) r@(Node ctr _ _) = Node (ctl + ctr) l r
 
--- |Given a sequence (e1,...en) to shuffle, its length, and a random
+-- | Given a sequence (e1,...en) to shuffle, its length, and a random
 -- generator, compute the corresponding permutation of the input
 -- sequence.
-shuffle :: CPRG g => g -> Integer -> [a] -> [a]
-shuffle g len elements = shuffle' elements $ rseq len g
-    where
-      -- The sequence (r1,...r[n-1]) of numbers such that r[i] is an
-      -- independent sample from a uniform random distribution
-      -- [0..n-i]
-      rseq :: CPRG g => Integer -> g -> [Integer]
-      rseq n = fst . unzip . rseq' (n - 1)
-          where
-            rseq' :: CPRG g => Integer -> g -> [(Integer, g)]
-            rseq' 0 _ = []
-            rseq' i g = (j, g) : rseq' (i - 1) g'
-                where
-                  (j, g') = generateBetween g 0 i
+shuffle :: CPRG g => g -> [a] -> Integer -> [a]
+shuffle g elements = shuffle' elements . rseq g
 
 -- |Given a sequence (e1,...en) to shuffle, and a sequence
 -- (r1,...r[n-1]) of numbers such that r[i] is an independent sample

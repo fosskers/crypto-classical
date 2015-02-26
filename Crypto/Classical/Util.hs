@@ -3,7 +3,10 @@
 
 module Crypto.Classical.Util where
 
+import Control.Lens
+import Crypto.Number.Generate
 import Crypto.Number.ModArithmetic (inverseCoprimes)
+import Crypto.Random
 import Data.Char
 import Data.Modular
 
@@ -18,3 +21,13 @@ toInt c = toMod . toInteger $ ord c - ord 'A'
 -- | Must be passed a number coprime with 26.
 inverse :: ℤ/26 -> ℤ/26
 inverse a = toMod $ inverseCoprimes (unMod a) 26
+
+-- | The sequence (r1,...r[n-1]) of numbers such that r[i] is an
+-- independent sample from a uniform random distribution
+-- [0..n-i]
+rseq :: CPRG g => g -> Integer -> [Integer]
+rseq g n = rseq' g (n - 1) ^.. traverse . _1
+  where rseq' :: CPRG g => g -> Integer -> [(Integer, g)]
+        rseq' _ 0  = []
+        rseq' g' i = (j, g') : rseq' g'' (i - 1)
+          where (j, g'') = generateBetween g' 0 i
