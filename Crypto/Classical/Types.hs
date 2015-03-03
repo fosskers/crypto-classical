@@ -44,4 +44,4 @@ instance Key (ℤ/26,ℤ/26) where
 
 -- | Key for Substitution Cipher. The Key is the Mapping itself.
 instance Key (Map Char Char) where
-  key g = M.fromList $ zip ['a'..'z'] $ shuffle g ['a'..'z'] 26
+  key g = M.fromList $ zip ['A'..'Z'] $ shuffle g ['A'..'Z'] 26
