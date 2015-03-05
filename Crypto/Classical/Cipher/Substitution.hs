@@ -13,10 +13,6 @@ import           Data.Char
 import           Data.Map.Lazy (Map)
 import qualified Data.Map.Lazy as M
 
--- test
-import           Data.ByteString.Lazy (ByteString)
-import           Crypto.Random
-
 ---
 
 data Substitution a = Substitution { substitution :: a }
@@ -36,15 +32,3 @@ instance Cipher (Map Char Char) Substitution where
               | otherwise = M.findWithDefault c c m
 
   decrypt m = encrypt (mapInverse m)
-
-foo :: IO SystemRNG
-foo = fmap cprgCreate createEntropyPool
-
-testIO :: IO (Substitution ByteString)
-testIO = do
-  k <- fmap key foo
-  print k
-  return $ encrypt k "I QUITE ENJOY THIS! DON'T YOU?"  -- >>= decrypt k
-
-test :: Map Char Char -> Substitution ByteString
-test k = encrypt k "abcdefghijklmnopqrstuvwxyz" >>= decrypt k
