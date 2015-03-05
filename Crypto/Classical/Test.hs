@@ -15,7 +15,7 @@ import Data.ByteString.Lazy (ByteString)
 foo :: IO SystemRNG
 foo = fmap cprgCreate createEntropyPool
 
-testIO :: (Key k, Monad c, Cipher k c) => ByteString -> IO (c ByteString)
+testIO :: Cipher k c => ByteString -> IO (c ByteString)
 testIO s = do
   k <- fmap key foo
   return $ encrypt k s

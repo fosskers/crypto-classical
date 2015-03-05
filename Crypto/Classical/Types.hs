@@ -19,9 +19,9 @@ import           Data.Modular
 
 ---
 
-class Cipher k a | a -> k where
-  encrypt :: Key k => k -> ByteString -> a ByteString
-  decrypt :: Key k => k -> ByteString -> a ByteString
+class Key k => Cipher k a | a -> k where
+  encrypt :: k -> ByteString -> a ByteString
+  decrypt :: k -> ByteString -> a ByteString
 
 -- | Keys can appear in a number of different forms.
 -- E.g. a single number, a tuple, a mapping, etc.
