@@ -39,9 +39,15 @@ instance Key (ℤ/26) where
 -- and we can't decrypt.
 instance Key (ℤ/26,ℤ/26) where
   key g = (a,b) & _1 %~ toMod
-    where a = ([1,3..25] \\ [13]) !! (fromIntegral . fst . generateMax g $ 11)
-          b = key g
+    where (n,g') = generateMax g 11
+          a = ([1,3..25] \\ [13]) !! (fromIntegral n)
+          b = key g'
 
 -- | Key for Substitution Cipher. The Key is the Mapping itself.
 instance Key (Map Char Char) where
   key g = M.fromList $ zip ['A'..'Z'] $ shuffle g ['A'..'Z'] 26
+
+-- | Key for Stream/Vigenère Cipher.
+instance Key [ℤ/26] where
+  key g = n : key g'
+    where (n,g') = generateMax g 26 & _1 %~ toMod
