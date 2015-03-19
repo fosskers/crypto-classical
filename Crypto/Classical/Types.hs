@@ -39,9 +39,8 @@ instance Key (ℤ/26) where
 -- and we can't decrypt.
 instance Key (ℤ/26,ℤ/26) where
   key g = (a,b) & _1 %~ toMod
-    where (n,g') = generateMax g 11
-          a = ([1,3..25] \\ [13]) !! (fromIntegral n)
-          b = key g'
+    where a = head $ shuffle g ([1,3..25] \\ [13]) 12
+          b = key g
 
 -- | Key for Substitution Cipher. The Key is the Mapping itself.
 instance Key (Map Char Char) where
