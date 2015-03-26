@@ -42,7 +42,9 @@ library
                      , Crypto.Classical.Shuffle
                      , Crypto.Classical.Cipher.Caesar
                      , Crypto.Classical.Cipher.Affine
+                     , Crypto.Classical.Cipher.Stream
                      , Crypto.Classical.Cipher.Substitution
+                     , Crypto.Classical.Cipher.Vigenere
   
   -- Modules included in this library but not exported.
   -- other-modules:       
