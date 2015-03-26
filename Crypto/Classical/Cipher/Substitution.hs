@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -6,6 +7,7 @@
 module Crypto.Classical.Cipher.Substitution where
 
 import           Control.Applicative
+import           Control.Lens
 import           Crypto.Classical.Types
 import           Crypto.Classical.Util
 import qualified Data.ByteString.Lazy.Char8 as B
@@ -15,8 +17,9 @@ import qualified Data.Map.Lazy as M
 
 ---
 
-data Substitution a = Substitution { substitution :: a }
+data Substitution a = Substitution { _substitution :: a }
                     deriving (Eq,Show,Functor)
+makeLenses ''Substitution
 
 instance Applicative Substitution where
   pure = Substitution

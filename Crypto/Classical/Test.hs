@@ -1,3 +1,4 @@
+{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Crypto.Classical.Test where
@@ -7,25 +8,27 @@ import Crypto.Classical.Cipher.Affine
 import Crypto.Classical.Cipher.Caesar
 import Crypto.Classical.Cipher.Stream
 import Crypto.Classical.Cipher.Substitution
+import Crypto.Classical.Cipher.Vigenere
 import Crypto.Classical.Types
 import Crypto.Random
 import Data.ByteString.Lazy (ByteString)
 
 ---
 
-foo :: IO SystemRNG
-foo = fmap cprgCreate createEntropyPool
+gen :: IO SystemRNG
+gen = fmap cprgCreate createEntropyPool
 
-testIO :: Cipher k c => ByteString -> IO (c ByteString)
+testIO :: (Functor c, Monad c) => Cipher k c => ByteString -> IO (c (ByteString,ByteString))
 testIO s = do
-  k <- fmap key foo
-  return $ encrypt k s
+  k <- fmap key gen
+  return $ encrypt k s >>= \c -> (fmap (c,) $ decrypt k c)
 
-testAll :: ByteString -> IO [ByteString]
-testAll s = sequence [ caesar       <$> testIO s
-                     , affine       <$> testIO s
-                     , substitution <$> testIO s
-                     , stream       <$> testIO s
+testAll :: ByteString -> IO [(ByteString,ByteString)]
+testAll s = sequence [ _caesar       <$> testIO s
+                     , _affine       <$> testIO s
+                     , _substitution <$> testIO s
+                     , _stream       <$> testIO s
+                     , _vigenère     <$> testIO s
                      ]
 
 plain :: ByteString

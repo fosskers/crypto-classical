@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -8,6 +9,7 @@
 module Crypto.Classical.Cipher.Caesar where
 
 import           Control.Applicative
+import           Control.Lens
 import           Crypto.Classical.Types
 import           Crypto.Classical.Util
 import qualified Data.ByteString.Lazy.Char8 as B
@@ -16,7 +18,8 @@ import           Data.Modular
 
 ---
 
-data Caesar a = Caesar { caesar :: a } deriving (Eq,Show,Functor)
+data Caesar a = Caesar { _caesar :: a } deriving (Eq,Show,Functor)
+makeLenses ''Caesar
 
 instance Applicative Caesar where
   pure = Caesar

@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -8,6 +9,7 @@
 module Crypto.Classical.Cipher.Stream where
 
 import           Control.Applicative
+import           Control.Lens
 import           Crypto.Classical.Types
 import           Crypto.Classical.Util
 import qualified Data.ByteString.Lazy.Char8 as B
@@ -16,7 +18,8 @@ import           Data.Modular
 
 ---
 
-data Stream a = Stream { stream :: a } deriving (Eq,Show,Functor)
+data Stream a = Stream { _stream :: a } deriving (Eq,Show,Functor)
+makeLenses ''Stream
 
 instance Applicative Stream where
   pure = Stream
@@ -34,4 +37,5 @@ instance Cipher [ℤ/26] Stream where
             | not $ isLetter m = m : f ks ms
             | otherwise = toLetter (toInt m + kc) : f ks ms
 
-  decrypt = encrypt
+  decrypt k = encrypt k'
+    where k' = map (* (-1)) k

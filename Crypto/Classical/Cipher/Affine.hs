@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -8,6 +9,7 @@
 module Crypto.Classical.Cipher.Affine where
 
 import           Control.Applicative
+import           Control.Lens
 import           Crypto.Classical.Types
 import           Crypto.Classical.Util
 import qualified Data.ByteString.Lazy.Char8 as B
@@ -16,7 +18,8 @@ import           Data.Modular
 
 ---
 
-data Affine a = Affine { affine :: a } deriving (Eq,Show,Functor)
+data Affine a = Affine { _affine :: a } deriving (Eq,Show,Functor)
+makeLenses ''Affine
 
 instance Applicative Affine where
   pure = Affine
