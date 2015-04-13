@@ -63,7 +63,7 @@ shuffle' elements = shuffleTree (buildTree elements)
         extractTree n (Node n' l (Leaf e))
           | n + 1 == n' = (e, l)
         extractTree n (Node c l@(Node cl _ _) r)
-	  | n < cl = let (e, l') = extractTree n l
+          | n < cl = let (e, l') = extractTree n l
                      in (e, Node (c - 1) l' r)
           | otherwise = let (e, r') = extractTree (n - cl) r
                         in (e, Node (c - 1) l r')

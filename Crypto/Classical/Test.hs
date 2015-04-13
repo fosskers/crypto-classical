@@ -3,36 +3,44 @@
 
 module Crypto.Classical.Test where
 
-import Control.Applicative ((<$>))
-import Crypto.Classical.Cipher.Affine
-import Crypto.Classical.Cipher.Caesar
-import Crypto.Classical.Cipher.Stream
-import Crypto.Classical.Cipher.Substitution
-import Crypto.Classical.Cipher.Vigenere
-import Crypto.Classical.Types
-import Crypto.Random
-import Data.ByteString.Lazy (ByteString)
+import           Control.Monad (void)
+import           Crypto.Classical.Cipher.Affine
+import           Crypto.Classical.Cipher.Caesar
+import           Crypto.Classical.Cipher.Stream
+import           Crypto.Classical.Cipher.Substitution
+import           Crypto.Classical.Cipher.Vigenere
+import           Crypto.Classical.Types
+import           Crypto.Random
+import           Data.ByteString.Lazy.Char8 (ByteString)
+import qualified Data.ByteString.Lazy.Char8 as B
+import           Data.Char
+import           Test.QuickCheck
+
+---
+
+instance Arbitrary ByteString where
+  arbitrary = B.pack <$> arbitrary
 
 ---
 
 gen :: IO SystemRNG
 gen = fmap cprgCreate createEntropyPool
 
-testIO :: (Functor c, Monad c) => Cipher k c => ByteString -> IO (c (ByteString,ByteString))
-testIO s = do
-  k <- fmap key gen
-  return $ encrypt k s >>= \c -> (fmap (c,) $ decrypt k c)
+testAll :: IO ()
+testAll = void $ sequence [ cycleTest _caesar
+                          , cycleTest _affine
+                          , cycleTest _substitution
+                          , cycleTest _stream
+--                          , cycleTest _vigenère
+                          ]
 
-testAll :: ByteString -> IO [(ByteString,ByteString)]
-testAll s = sequence [ _caesar       <$> testIO s
-                     , _affine       <$> testIO s
-                     , _substitution <$> testIO s
-                     , _stream       <$> testIO s
-                     , _vigenère     <$> testIO s
-                     ]
+allAscii :: ByteString -> Bool
+allAscii = and . map (\c -> isAscii c && isLetter c) . B.unpack
 
-plain :: ByteString
-plain = "I QUITE ENJOY THIS! DON'T YOU?"
+encDec :: (Monad m, Cipher k m) => k -> ByteString -> m ByteString
+encDec k m = encrypt k m >>= decrypt k
 
-alpha :: ByteString
-alpha = "abcdefghijklmnopqrstuvwxyz"
+cycleTest :: (Monad c, Cipher k c) => (c ByteString -> ByteString) -> IO ()
+cycleTest f = do
+  k <- key <$> gen
+  quickCheck $ (\m -> allAscii m ==> f (encDec k m) == B.map toUpper m)
