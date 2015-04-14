@@ -6,7 +6,6 @@
 
 module Crypto.Classical.Cipher.Substitution where
 
-import           Control.Applicative
 import           Control.Lens
 import           Crypto.Classical.Types
 import           Crypto.Classical.Util
@@ -17,8 +16,8 @@ import qualified Data.Map.Lazy as M
 
 ---
 
-data Substitution a = Substitution { _substitution :: a }
-                    deriving (Eq,Show,Functor)
+newtype Substitution a = Substitution { _substitution :: a }
+                       deriving (Eq,Show,Functor)
 makeLenses ''Substitution
 
 instance Applicative Substitution where
@@ -30,7 +29,7 @@ instance Monad Substitution where
   Substitution a >>= f = f a
 
 instance Cipher (Map Char Char) Substitution where
-  encrypt m = Substitution . B.map f
+  encrypt m = pure . B.map f
     where f c | isLower c = f $ toUpper c
               | otherwise = M.findWithDefault c c m
 

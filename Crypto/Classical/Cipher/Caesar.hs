@@ -17,7 +17,7 @@ import           Data.Modular
 
 ---
 
-data Caesar a = Caesar { _caesar :: a } deriving (Eq,Show,Functor)
+newtype Caesar a = Caesar { _caesar :: a } deriving (Eq,Show,Functor)
 makeLenses ''Caesar
 
 instance Applicative Caesar where
@@ -29,7 +29,7 @@ instance Monad Caesar where
   Caesar a >>= f = f a
 
 instance Cipher (ℤ/26) Caesar where
-  encrypt k = Caesar . B.map f
+  encrypt k = pure . B.map f
     where f c | isLower c = f $ toUpper c
               | not $ isLetter c = c
               | otherwise = toLetter $ toInt c + k

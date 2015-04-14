@@ -7,7 +7,6 @@
 
 module Crypto.Classical.Cipher.Vigenere where
 
-import           Control.Applicative
 import           Control.Lens
 import           Crypto.Classical.Cipher.Stream
 import           Crypto.Classical.Types
@@ -16,7 +15,7 @@ import           Data.Modular
 
 ---
 
-data Vigenère a = Vigenère { _vigenère :: a } deriving (Eq,Show,Functor)
+newtype Vigenère a = Vigenère { _vigenère :: a } deriving (Eq,Show,Functor)
 makeLenses ''Vigenère
 
 instance Applicative Vigenère where

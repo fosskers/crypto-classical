@@ -18,7 +18,7 @@ import           Data.Modular
 
 ---
 
-data Affine a = Affine { _affine :: a } deriving (Eq,Show,Functor)
+newtype Affine a = Affine { _affine :: a } deriving (Eq,Show,Functor)
 makeLenses ''Affine
 
 instance Applicative Affine where
@@ -30,12 +30,12 @@ instance Monad Affine where
   Affine a >>= f = f a
 
 instance Cipher (ℤ/26,ℤ/26) Affine where
-  encrypt (a,b) = Affine . B.map f
+  encrypt (a,b) = pure . B.map f
     where f c | isLower c = f $ toUpper c
               | not $ isLetter c = c
               | otherwise = toLetter $ a * toInt c + b
 
-  decrypt (a,b) = Affine . B.map f
+  decrypt (a,b) = pure . B.map f
     where f c | isLower c = f $ toUpper c
               | not $ isLetter c = c
               | otherwise = toLetter $ (toInt c - b) * inverse a

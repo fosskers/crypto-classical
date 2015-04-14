@@ -1,14 +1,13 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 
 module Crypto.Classical.Cipher.Stream where
 
-import           Control.Applicative
 import           Control.Lens
 import           Crypto.Classical.Types
 import           Crypto.Classical.Util
@@ -18,7 +17,7 @@ import           Data.Modular
 
 ---
 
-data Stream a = Stream { _stream :: a } deriving (Eq,Show,Functor)
+newtype Stream a = Stream { _stream :: a } deriving (Eq,Show,Functor)
 makeLenses ''Stream
 
 instance Applicative Stream where

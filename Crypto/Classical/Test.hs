@@ -3,6 +3,7 @@
 
 module Crypto.Classical.Test where
 
+import           Control.Lens
 import           Control.Monad (void)
 import           Crypto.Classical.Cipher.Affine
 import           Crypto.Classical.Cipher.Caesar
@@ -27,16 +28,17 @@ gen :: IO SystemRNG
 gen = fmap cprgCreate createEntropyPool
 
 testAll :: IO ()
-testAll = void $ sequence [ cycleTest _caesar
-                          , cycleTest _affine
-                          , cycleTest _substitution
-                          , cycleTest _stream
---                          , cycleTest _vigenère
+testAll = void $ sequence [ cycleTest $ view caesar
+                          , cycleTest $ view affine
+                          , cycleTest $ view substitution
+                          , cycleTest $ view stream
+                          , cycleTest $ view vigenère
                           ]
 
 allAscii :: ByteString -> Bool
 allAscii = and . map (\c -> isAscii c && isLetter c) . B.unpack
 
+{-| Encrypt a message, then decrypt it immediately -}
 encDec :: (Monad m, Cipher k m) => k -> ByteString -> m ByteString
 encDec k m = encrypt k m >>= decrypt k
 
