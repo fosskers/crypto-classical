@@ -30,9 +30,9 @@ instance Monad Vigenère where
 -- shorter than the length of the plaintext.
 -- Weakness here: key length is a factor of the plaintext length.
 instance Cipher [ℤ/26] Vigenère where
-  encrypt k m = Vigenère . view stream . encrypt (vigKey m k) $ m
-  decrypt k m = Vigenère . view stream . decrypt (vigKey m k) $ m
+  encrypt k m = pure . view stream . encrypt (vigKey m k) $ m
+  decrypt k m = pure . view stream . decrypt (vigKey m k) $ m
 
 vigKey :: B.ByteString -> [ℤ/26] -> [ℤ/26]
-vigKey m k = concat . repeat . take n $ k
+vigKey m k = concat . repeat . take (n+1) $ k
   where n = floor . logBase 2 . fromIntegral . B.length $ m
