@@ -1,7 +1,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Crypto.Classical.Test ( testAll, cycleTest ) where
+module Crypto.Classical.Test ( testAll, cycleT, notSelfT ) where
 
 import           Control.Lens
 import           Control.Monad (void)
@@ -30,15 +30,26 @@ gen :: IO SystemRNG
 gen = fmap cprgCreate createEntropyPool
 
 testAll :: IO ()
-testAll = void $ sequence [ cycleTest $ view caesar
-                          , cycleTest $ view affine
-                          , cycleTest $ view substitution
-                          , cycleTest $ view stream
-                          , cycleTest $ view vigenère
+testAll = void $ sequence [ cycleT $ view caesar
+                          , cycleT $ view affine
+                          , cycleT $ view substitution
+                          , cycleT $ view stream
+                          , cycleT $ view vigenère
+                          , notSelfT $ view caesar
+                          , notSelfT $ view affine
+                          , notSelfT $ view substitution
+                          , notSelfT $ view stream
+                          , notSelfT $ view vigenère
                           ]
 
 {-| An encrypted message should decrypt to the original plaintext -}
-cycleTest :: (Monad c, Cipher k c) => (c ByteString -> ByteString) -> IO ()
-cycleTest f = do
+cycleT :: (Monad c, Cipher k c) => (c ByteString -> ByteString) -> IO ()
+cycleT f = do
   k <- key <$> gen
-  quickCheck $ (\m -> f (encrypt k m >>= decrypt k) == m)
+  quickCheck (\m -> f (encrypt k m >>= decrypt k) == m)
+
+{-| A message should never encrypt to itself -}
+notSelfT :: (Monad c, Cipher k c) => (c ByteString -> ByteString) -> IO ()
+notSelfT f = do
+  k <- key <$> gen
+  quickCheck (\m -> B.length m > 1 ==> m /= f (encrypt k m))

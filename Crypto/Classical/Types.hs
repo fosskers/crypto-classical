@@ -32,7 +32,7 @@ class Key a where
   key :: CPRG g => g -> a
 
 instance Key (ℤ/26) where
-  key g = toMod . fst . generateMax g $ 26
+  key g = toMod . fst $ generateBetween g 1 25
 
 -- | For Affine Ciphers.
 -- `a` must be coprime with 26, or else a^-1 won't exist and
