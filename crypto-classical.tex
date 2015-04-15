@@ -111,14 +111,18 @@ license.
 \section{Enigma}
 
 \subsection{Design Notes}
+All wiring information in this section was found at the
+\href{http://www.cryptomuseum.com/crypto/enigma/wiring.htm}{Crypto Museum}
+website.
 
 \subsubsection{Models}
-\begin{itemize}
-\item Wehrmacht Enigma I (1930-38): 3 rotors (+2 choices in December 1938)
-\item Kriegsmarine M4 (1942): 4 rotors
-\end{itemize}
+There were many Enigma models, both commercial and military. This library
+provides an implementation of the Wehrmacht Enigma I (1930-38), which
+had 3 rotors. Two extra choices of rotors were added in December 1938.
 
 \subsubsection{Rotor Wirings}
+Rotors are referred to by Roman numerals. They each have unique
+letter mappings and turnover points.
 \begin{center}
 \begin{tabular}{l | c | c | l}
   Rotor \# & ABCDEFGHIJKLMNOPQRSTUVWXYZ & Turnover Position & Introduced\\
@@ -133,10 +137,22 @@ license.
 
 Rotor details: \url{https://en.wikipedia.org/wiki/Enigma_rotor_details}
 
-\subsubsection{Reflector}
+\subsubsection{Reflector Wirings}
 There were also several reflector models. While some rotated, the army
 and air force reflectors did not.\\
-We should use the \emph{Umkehrwalze B}, which appeared in November 1937.
+We should use the \emph{Umkehrwalze B}, which appeared in November 1937
+and would have been in use when the extra rotor choices were added in 1938.
+The \emph{Umkehrwalze C} was only used briefly in 1940.\\
+
+\begin{center}
+  \begin{tabular}{l | c}
+    Reflector & ABCDEFGHIJKLMNOPQRSTUVWXYZ\\
+    \hline
+    Umkehrwalze A & EJMZALYXVBWFCRQUONTSPIKHGD\\
+    Umkehrwalze B & YRUHQSLDPXNGOKMIEBFZCWVJAT\\
+    Umkehrwalze C & FVPJIAOYEDRZXWGCTKUQSBNMHL
+  \end{tabular}
+\end{center}
 
 \subsection{Key}
 The encryption key has five components:
