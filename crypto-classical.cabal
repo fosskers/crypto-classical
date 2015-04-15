@@ -63,6 +63,7 @@ library
                      , modular-arithmetic >= 1.2.0.0
                      , random
                      , random-shuffle >= 0.0.4
+                     , text >= 1.2.0.4
                      , transformers >= 0.4.2.0
   
   -- Directories containing source files.

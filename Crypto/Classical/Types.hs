@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 
@@ -17,6 +18,15 @@ module Crypto.Classical.Types
     Cipher(..)
     -- * Keys
   , Key(..)
+    -- * Enigma Types
+  , Rotor(..)
+  , name
+  , turnover
+  , circuit
+  , rotors
+  , settings
+  , reflector
+  , plugboard
   ) where
 
 import           Control.Lens
@@ -28,6 +38,7 @@ import           Data.List ((\\))
 import           Data.Map.Lazy (Map)
 import qualified Data.Map.Lazy as M
 import           Data.Modular
+import           Data.Text (Text)
 
 ---
 
@@ -64,3 +75,50 @@ instance Key (Map Char Char) where
 instance Key [ℤ/26] where
   key g = n : key g'
     where (n,g') = generateMax g 26 & _1 %~ toMod
+
+---
+
+-- | A Rotor (German: Walze) is a wheel labelled A to Z, with internal
+-- wirings from each entry point to exit point. There is also a turnover
+-- point, upon which a Rotor would turn its left neighbour as well.
+-- Typically said turnover point is thought of in terms of letters
+-- (e.g. Q->R for Rotor I). Here, we represent the turnover point as
+-- a distance from A (or 0, the first entry point). As the Rotor rotates,
+-- this value decrements. When it rolls back to 25 (modular arithmetic),
+-- we rotate the next Rotor.
+--
+-- Our Rotors are letter-agnostic. That is, they only map numeric
+-- entry points to exit points. This allows us to simulate rotation
+-- very simply with Lenses.
+data Rotor = Rotor { _name     :: Text
+                   , _turnover :: ℤ/26
+                   , _circuit  :: Map (ℤ/26) (ℤ/26) } deriving (Eq,Show)
+makeLenses ''Rotor
+
+-- | A unmoving map, similar to the Rotors, which fed the electrical
+-- current back into Rotors. This would never feed the left Rotor's letter
+-- back to itself, meaning a plaintext character would never encrypt
+-- to itself. This was a major weakness in scheme which allowed the Allies
+-- to make Known Plaintext Attacks against the machine.
+type Reflector = Map (ℤ/26) (ℤ/26)
+
+-- | A set of 10 pairs of connected letters which would map letters
+-- to other ones both before and after being put through the Rotors.
+-- The remaining six unpaired letters can be thought of mapping to themselves.
+type Plugboard = Map (ℤ/26) (ℤ/26)
+
+-- | Essentially the machine itself. It is made up of:
+-- 1. Three rotor choices from five, in a random placement.
+-- 2. Initial settings of those Rotors.
+-- 3. The Reflector model in use.
+-- 4. Plugboard settings (pairs of characters).
+data EnigmaKey = EnigmaKey { _rotors    :: (Rotor,Rotor,Rotor)
+                           , _settings  :: (Char,Char,Char)
+                           , _reflector :: Reflector
+                           , _plugboard :: Plugboard
+                           } deriving (Eq,Show)
+makeLenses ''EnigmaKey
+
+-- PICKING PLUGBOARD
+-- Shuffle [A..Z], then take the first 20 Chars as 10 pairs, and
+-- map the rest to themselves.
