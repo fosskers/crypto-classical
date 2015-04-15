@@ -1,0 +1,172 @@
+\documentclass{article}
+% GENERAL
+\usepackage{setspace,mathtools,amsfonts,amsmath,amsthm,amssymb,hyperref}
+\usepackage{tikz,epigraph,pgfplots}  % For trees
+\usepackage[utf8]{inputenc}
+\usepackage{tikz-qtree,tikz-qtree-compat}
+\usepackage{forest}
+
+% FOR SOURCE CODE
+\usepackage{listings}
+
+\lstdefinelanguage{haskell}{
+  morekeywords={data,type,newtype,instance,class,module,import},
+  otherkeywords={=>,>>=,<-,<\%,<:,>:,\#,@},
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[n]{/*}{*/},
+  morestring=[b]",
+  morestring=[b]',
+  morestring=[b]"""
+}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+% Default settings for code listings
+\lstset{frame=tb,
+  language=haskell,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  frame=single,
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=4
+}
+
+% FOR TREE DRAWING
+\pgfplotsset{compat=newest}
+\usetikzlibrary{shapes.geometric,arrows,fit,matrix,positioning}
+\tikzset
+{
+      treenode/.style = {circle, draw=black, align=center, minimum size=1cm}
+}
+
+% MARGINS
+\usepackage[left=1in,top=1in,right=1in,bottom=1in]{geometry}
+\onehalfspacing
+
+\begin{document}
+
+\title{Haskell crypto-classical Library}
+\author{Colin Woodbury}
+\date{\today}
+\maketitle
+
+% --- TABLE OF CONTENTS ---
+\tableofcontents
+\clearpage
+% -------------------------
+
+\section{Introduction}
+\subsection{Motivation}
+The main motivation for the creation of this library was to provide
+an educational tool for learners of Haskell and Cryptography. While
+\href{http://hackage.haskell.org/packages/search?terms=crypto}{many}
+modern Cryptographic libraries exist aleady on
+\href{http://hackage.haskell.org}{Hackage} (the principal
+library hosting service for Haskell), no libraries treating classical
+ciphers existed. Considering many other such ``toy'' libraries are
+present there, this was surprising.
+
+\subsection{Design}
+
+\subsubsection{Random Keys}
+\subsubsection{Type-level Modular Arithmetic}
+\subsubsection{Polymorphic Cipher Choice}
+\subsubsection{Lenses}
+A relatively recent addition to the Funtional Programming world, Lenses
+provide a means to access and modify data fields in (potentially) nested,
+immutable data structures.
+
+\subsection{Licensing}
+\fbox{crypto-classical} is available under the terms of the \textbf{BSD3}
+license.
+
+% === %
+
+\section{Simple Ciphers}
+
+\subsection{Caesar}
+
+\subsection{Affine}
+
+\subsection{Substitution}
+
+\subsection{Stream}
+
+\subsection{Vigenère}
+
+% === %
+
+\section{Enigma}
+
+\subsection{Design Notes}
+
+\subsubsection{Models}
+\begin{itemize}
+\item Wehrmacht Enigma I (1930-38): 3 rotors (+2 choices in December 1938)
+\item Kriegsmarine M4 (1942): 4 rotors
+\end{itemize}
+
+\subsubsection{Rotor Wirings}
+\begin{center}
+\begin{tabular}{l | c | c | l}
+  Rotor \# & ABCDEFGHIJKLMNOPQRSTUVWXYZ & Turnover Position & Introduced\\
+  \hline
+  I & EKMFLGDQVZNTOWYHXUSPAIBRCJ & Q $\to$ R & 1930\\
+  II & AJDKSIRUXBLHWTMCQGZNPYFVOE & E $\to$ F & 1930\\
+  III & BDFHJLCPRTXVZNYEIWGAKMUSQO & V $\to$ W & 1930\\
+  IV & ESOVPZJAYQUIRHXLNFTGKDCMWB & J $\to$ K & Dec 1938\\
+  V & VZBRGITYUPSDNHLXAWMJQOFECK & Z $\to$ A & Dec 1938
+\end{tabular}
+\end{center}
+
+Rotor details: \url{https://en.wikipedia.org/wiki/Enigma_rotor_details}
+
+\subsubsection{Reflector}
+There were also several reflector models. While some rotated, the army
+and air force reflectors did not.\\
+We should use the \emph{Umkehrwalze B}, which appeared in November 1937.
+
+\subsection{Key}
+The encryption key has five components:
+\begin{enumerate}
+\item Choice of three rotors from five
+\item Ordering of the rotors
+\item Alphabet ring position relative to rotor (doesn't contribute entropy)
+\item Initial rotor positions
+\item Plugboard wiring
+\end{enumerate}
+
+\subsection{Encryption}
+The mechanical ordering of the encryption steps can be described
+mathematically as:
+
+\begin{align*}
+  E &= PRMLUL^{-1}M^{-1}R^{-1}P^{-1}
+\end{align*}
+
+Where:
+\begin{itemize}
+\item $P$ is the plugboard mapping
+\item $R$ is the right rotor
+\item $M$ is the middle rotor
+\item $L$ is the left rotor
+\item $U$ is the reflector
+\end{itemize}
+
+% === %
+
+\section{Attacks}
+
+\end{document}
