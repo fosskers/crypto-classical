@@ -5,6 +5,12 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeOperators #-}
 
+-- |
+-- Module    : Crypto.Classical.Vigenere
+-- Copyright : (c) Colin Woodbury, 2015
+-- License   : BSD3
+-- Maintainer: Colin Woodbury <colingw@gmail.com>
+
 module Crypto.Classical.Cipher.Vigenere where
 
 import           Control.Lens
@@ -15,6 +21,9 @@ import           Data.Modular
 
 ---
 
+-- | A Vigenère Cipher is just a Stream Cipher with a finite key,
+-- shorter than the length of the plaintext. The key is repeated for
+-- the entire length of the plaintext.
 newtype Vigenère a = Vigenère { _vigenère :: a } deriving (Eq,Show,Functor)
 makeLenses ''Vigenère
 
@@ -26,13 +35,12 @@ instance Monad Vigenère where
   return = pure
   Vigenère a >>= f = f a
 
--- | A Vigenère Cipher is just a Stream Cipher with a finite key,
--- shorter than the length of the plaintext.
--- Weakness here: key length is a factor of the plaintext length.
 instance Cipher [ℤ/26] Vigenère where
   encrypt k m = pure . view stream . encrypt (vigKey m k) $ m
   decrypt k m = pure . view stream . decrypt (vigKey m k) $ m
 
+-- | Determine a Vigenère key from a Stream key.
+-- Weakness here: key length is a factor of the plaintext length.
 vigKey :: B.ByteString -> [ℤ/26] -> [ℤ/26]
 vigKey m k = concat . repeat . take (n+1) $ k
   where n = floor . logBase 2 . fromIntegral . B.length $ m

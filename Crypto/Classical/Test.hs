@@ -1,7 +1,20 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Crypto.Classical.Test ( testAll, cycleT, notSelfT ) where
+-- |
+-- Module    : Crypto.Classical.Test
+-- Copyright : (c) Colin Woodbury, 2015
+-- License   : BSD3
+-- Maintainer: Colin Woodbury <colingw@gmail.com>
+
+module Crypto.Classical.Test
+  (
+    -- * Single Tests
+    cycleT
+  , notSelfT
+    -- * Batch Tests
+  , testAll
+  ) where
 
 import           Control.Lens
 import           Control.Monad (void)
@@ -29,6 +42,7 @@ instance Arbitrary ByteString where
 gen :: IO SystemRNG
 gen = fmap cprgCreate createEntropyPool
 
+-- | Run every test on every Cipher.
 testAll :: IO ()
 testAll = void $ sequence [ cycleT $ view caesar
                           , cycleT $ view affine
@@ -42,13 +56,13 @@ testAll = void $ sequence [ cycleT $ view caesar
                           , notSelfT $ view vigenère
                           ]
 
-{-| An encrypted message should decrypt to the original plaintext -}
+-- | An encrypted message should decrypt to the original plaintext.
 cycleT :: (Monad c, Cipher k c) => (c ByteString -> ByteString) -> IO ()
 cycleT f = do
   k <- key <$> gen
   quickCheck (\m -> f (encrypt k m >>= decrypt k) == m)
 
-{-| A message should never encrypt to itself -}
+-- | A message should never encrypt to itself.
 notSelfT :: (Monad c, Cipher k c) => (c ByteString -> ByteString) -> IO ()
 notSelfT f = do
   k <- key <$> gen

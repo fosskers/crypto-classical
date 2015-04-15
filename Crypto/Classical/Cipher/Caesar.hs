@@ -6,6 +6,12 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 
+-- |
+-- Module    : Crypto.Classical.Caesar
+-- Copyright : (c) Colin Woodbury, 2015
+-- License   : BSD3
+-- Maintainer: Colin Woodbury <colingw@gmail.com>
+
 module Crypto.Classical.Cipher.Caesar where
 
 import           Control.Lens
@@ -17,6 +23,11 @@ import           Data.Modular
 
 ---
 
+-- | A simple Shift Cipher. The key is a number by which to shift each
+-- letter in the alphabet. Example:
+--
+-- >>> encrypt 3 "ABCDEFGHIJKLMNOPQRSTUVWXYZ" ^. caesar
+-- "DEFGHIJKLMNOPQRSTUVWXYZABC"
 newtype Caesar a = Caesar { _caesar :: a } deriving (Eq,Show,Functor)
 makeLenses ''Caesar
 

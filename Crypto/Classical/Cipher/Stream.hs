@@ -6,6 +6,12 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 
+-- |
+-- Module    : Crypto.Classical.Stream
+-- Copyright : (c) Colin Woodbury, 2015
+-- License   : BSD3
+-- Maintainer: Colin Woodbury <colingw@gmail.com>
+
 module Crypto.Classical.Cipher.Stream where
 
 import           Control.Lens
@@ -17,6 +23,14 @@ import           Data.Modular
 
 ---
 
+-- | A Cipher with pseudorandom keys as long as the plaintext.
+-- Since Haskell is lazy, our keys here are actually of infinite length.
+--
+-- If for whatever reason a key of finite length is given to `encrypt`,
+-- the ciphertext is cutoff to match the key length. Example:
+--
+-- >>> encrypt [1,2,3] "ABCDEF" ^. stream
+-- "BDF"
 newtype Stream a = Stream { _stream :: a } deriving (Eq,Show,Functor)
 makeLenses ''Stream
 
@@ -31,6 +45,7 @@ instance Monad Stream where
 instance Cipher [ℤ/26] Stream where
   encrypt k = pure . B.pack . f k . B.unpack
     where f _ [] = []
+          f [] _ = []
           f (kc:ks) (m:ms) 
             | isLower m = f (kc:ks) (toUpper m : ms)
             | not $ isLetter m = m : f ks ms

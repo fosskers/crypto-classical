@@ -1,7 +1,17 @@
 -- Code borrowed from `random-shuffle` and modified to match
 -- crypto-random data types.
 
-module Crypto.Classical.Shuffle ( shuffle ) where
+-- |
+-- Module    : Crypto.Classical.Shuffle
+-- Copyright : (c) Colin Woodbury, 2015
+-- License   : BSD3
+-- Maintainer: Colin Woodbury <colingw@gmail.com>
+
+module Crypto.Classical.Shuffle
+  (
+    -- * List Scrambling
+    shuffle
+  ) where
 
 import Crypto.Classical.Util
 import Crypto.Random
@@ -38,7 +48,7 @@ buildTree = (fix growLevel) . (map Leaf)
 shuffle :: CPRG g => g -> [a] -> Integer -> [a]
 shuffle g elements = shuffle' elements . rseq g
 
--- |Given a sequence (e1,...en) to shuffle, and a sequence
+-- | Given a sequence (e1,...en) to shuffle, and a sequence
 -- (r1,...r[n-1]) of numbers such that r[i] is an independent sample
 -- from a uniform random distribution [0..n-i], compute the
 -- corresponding permutation of the input sequence.

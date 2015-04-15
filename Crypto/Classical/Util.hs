@@ -1,7 +1,24 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds #-}
 
-module Crypto.Classical.Util where
+-- |
+-- Module    : Crypto.Classical.Util
+-- Copyright : (c) Colin Woodbury, 2015
+-- License   : BSD3
+-- Maintainer: Colin Woodbury <colingw@gmail.com>
+
+module Crypto.Classical.Util
+  (
+    -- * Character Conversion
+    toLetter
+  , toInt
+    -- * Modular Arithmetic
+  , inverse
+    -- * Random Sequences
+  , rseq
+    -- * Function Inversion
+  , mapInverse
+  ) where
 
 import           Control.Lens
 import           Crypto.Number.Generate

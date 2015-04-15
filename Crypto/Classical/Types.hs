@@ -5,7 +5,19 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 
-module Crypto.Classical.Types where
+-- |
+-- Module    : Crypto.Classical.Types
+-- Copyright : (c) Colin Woodbury, 2015
+-- License   : BSD3
+-- Maintainer: Colin Woodbury <colingw@gmail.com>
+
+module Crypto.Classical.Types
+  (
+    -- * Cipher
+    Cipher(..)
+    -- * Keys
+  , Key(..)
+  ) where
 
 import           Control.Lens
 import           Crypto.Classical.Shuffle
@@ -19,6 +31,8 @@ import           Data.Modular
 
 ---
 
+-- | A Cipher must be able to encrypt and decrypt. The Cipher type
+-- determines the Key type.
 class Key k => Cipher k a | a -> k where
   encrypt :: k -> ByteString -> a ByteString
   decrypt :: k -> ByteString -> a ByteString

@@ -6,9 +6,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeOperators #-}
 
+-- |
+-- Module    : Crypto.Classical.Affine
+-- Copyright : (c) Colin Woodbury, 2015
+-- License   : BSD3
+-- Maintainer: Colin Woodbury <colingw@gmail.com>
+
 module Crypto.Classical.Cipher.Affine where
 
-import           Control.Applicative
 import           Control.Lens
 import           Crypto.Classical.Types
 import           Crypto.Classical.Util
@@ -18,6 +23,12 @@ import           Data.Modular
 
 ---
 
+-- | An Affine Cipher is a non-random Substitution Cipher, such that a
+-- character `x` is mapped to a cipher character according to the equation:
+--
+-- f(x) = ax + b (mod 26)
+--
+-- Also known as a Linear Cipher.
 newtype Affine a = Affine { _affine :: a } deriving (Eq,Show,Functor)
 makeLenses ''Affine
 
