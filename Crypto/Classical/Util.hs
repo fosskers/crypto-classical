@@ -16,8 +16,10 @@ module Crypto.Classical.Util
   , inverse
     -- * Random Sequences
   , rseq
-    -- * Function Inversion
+    -- * Map function
   , mapInverse
+  , compose
+  , (|.|)
   ) where
 
 import           Control.Lens
@@ -55,3 +57,18 @@ rseq g n = rseq' g (n - 1) ^.. traverse . _1
 -- Note that this operation may result in a smaller Map than the original.
 mapInverse :: Ord v => Map k v -> Map v k
 mapInverse = M.foldrWithKey (\k v acc -> M.insert v k acc) M.empty
+
+-- | Compose two Maps. If some key `v` isn't present in the second
+-- Map, then `k` will be left out of the result.
+--
+-- 2015 April 16 @ 13:56
+-- Would it be possible to make a Category for Map like this?
+compose :: (Ord k, Ord v) => Map k v -> Map v v' -> Map k v'
+compose s t = M.foldrWithKey f M.empty s
+  where f k v acc = case M.lookup v t of
+                     Nothing -> acc
+                     Just v' -> M.insert k v' acc
+
+-- | An alias for compose. Works left-to-right.
+(|.|) :: (Ord k, Ord v) => Map k v -> Map v v' -> Map k v'
+(|.|) = compose
