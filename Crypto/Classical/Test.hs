@@ -67,3 +67,12 @@ notSelfT :: (Monad c, Cipher k c) => (c ByteString -> ByteString) -> IO ()
 notSelfT f = do
   k <- key <$> gen
   quickCheck (\m -> B.length m > 1 ==> m /= f (encrypt k m))
+
+{- 2015 April 16 @ 15:32 - This won't compile.
+uniZipT :: IO ()
+uniZipT = quickCheck (\l -> length (uniZip l) == (length l `div` 2))
+-}
+
+-- Possible with QuickCheck?
+genPlugsT :: IO Plugboard
+genPlugsT = genPlugs <$> gen

@@ -44,9 +44,9 @@ instance Cipher (ℤ/26,ℤ/26) Affine where
   encrypt (a,b) = pure . B.map f
     where f c | isLower c = f $ toUpper c
               | not $ isLetter c = c
-              | otherwise = toLetter $ a * toInt c + b
+              | otherwise = letter $ a * int c + b
 
   decrypt (a,b) = pure . B.map f
     where f c | isLower c = f $ toUpper c
               | not $ isLetter c = c
-              | otherwise = toLetter $ (toInt c - b) * inverse a
+              | otherwise = letter $ (int c - b) * inverse a

@@ -10,8 +10,8 @@
 module Crypto.Classical.Util
   (
     -- * Character Conversion
-    toLetter
-  , toInt
+    letter
+  , int
     -- * Modular Arithmetic
   , inverse
     -- * Random Sequences
@@ -20,6 +20,8 @@ module Crypto.Classical.Util
   , mapInverse
   , compose
   , (|.|)
+    -- * Miscellaneous
+  , uniZip
   ) where
 
 import           Control.Lens
@@ -33,11 +35,11 @@ import           Data.Modular
 
 ---
 
-toLetter :: ℤ/26 -> Char
-toLetter l = chr $ ord 'A' + (fromIntegral $ unMod l)
+letter :: ℤ/26 -> Char
+letter l = chr $ ord 'A' + (fromIntegral $ unMod l)
 
-toInt :: Char -> ℤ/26
-toInt c = toMod . toInteger $ ord c - ord 'A'
+int :: Char -> ℤ/26
+int c = toMod . toInteger $ ord c - ord 'A'
 
 -- | Must be passed a number coprime with 26.
 inverse :: ℤ/26 -> ℤ/26
@@ -72,3 +74,13 @@ compose s t = M.foldrWithKey f M.empty s
 -- | An alias for compose. Works left-to-right.
 (|.|) :: (Ord k, Ord v) => Map k v -> Map v v' -> Map k v'
 (|.|) = compose
+
+-- | Zip a list on itself. Takes pairs of values and forms a tuple.
+-- Example:
+--
+-- >>> uniZip [1,2,3,4,5,6]
+-- [(1,2),(3,4),(5,6)]
+uniZip :: [a] -> [(a,a)]
+uniZip []       = []
+uniZip [_]      = []
+uniZip (a:b:xs) = (a,b) : uniZip xs

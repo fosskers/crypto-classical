@@ -43,6 +43,6 @@ instance Cipher (ℤ/26) Caesar where
   encrypt k = pure . B.map f
     where f c | isLower c = f $ toUpper c
               | not $ isLetter c = c
-              | otherwise = toLetter $ toInt c + k
+              | otherwise = letter $ int c + k
 
   decrypt k = encrypt (-k)

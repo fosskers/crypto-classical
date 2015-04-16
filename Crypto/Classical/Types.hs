@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
@@ -20,6 +21,8 @@ module Crypto.Classical.Types
   , Key(..)
     -- * Enigma Types
   , Rotor(..)
+  , Reflector
+  , Plugboard
   , name
   , turnover
   , circuit
@@ -31,6 +34,7 @@ module Crypto.Classical.Types
 
 import           Control.Lens
 import           Crypto.Classical.Shuffle
+import           Crypto.Classical.Util (uniZip,int)
 import           Crypto.Number.Generate
 import           Crypto.Random (CPRG)
 import           Data.ByteString.Lazy (ByteString)
@@ -38,6 +42,7 @@ import           Data.List ((\\))
 import           Data.Map.Lazy (Map)
 import qualified Data.Map.Lazy as M
 import           Data.Modular
+import           Data.Monoid ((<>))
 import           Data.Text (Text)
 
 ---
@@ -95,12 +100,41 @@ data Rotor = Rotor { _name     :: Text
                    , _circuit  :: Map (ℤ/26) (ℤ/26) } deriving (Eq,Show)
 makeLenses ''Rotor
 
+-- | Rotor I: Turnover from Q to R.
+rI :: Rotor
+rI = Rotor "I" (int 'Q') $ M.fromList (pairs & traverse . both %~ int)
+  where pairs = zip "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "EKMFLGDQVZNTOWYHXUSPAIBRCJ"
+
+-- | Rotor II: Turnover from E to F.
+rII :: Rotor
+rII = Rotor "II" (int 'E') $ M.fromList (pairs & traverse . both %~ int)
+  where pairs = zip "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "AJDKSIRUXBLHWTMCQGZNPYFVOE"
+
+-- | Rotor III: Turnover from V to W.
+rIII :: Rotor
+rIII = Rotor "III" (int 'V') $ M.fromList (pairs & traverse . both %~ int)
+  where pairs = zip "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "BDFHJLCPRTXVZNYEIWGAKMUSQO"
+
+-- | Rotor IV: Turnover from J to K.
+rIV :: Rotor
+rIV = Rotor "IV" (int 'J') $ M.fromList (pairs & traverse . both %~ int)
+  where pairs = zip "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "ESOVPZJAYQUIRHXLNFTGKDCMWB"
+
+-- | Rotor V: Turnover from Z to A.
+rV :: Rotor
+rV = Rotor "V" (int 'Z') $ M.fromList (pairs & traverse . both %~ int)
+  where pairs = zip "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "VZBRGITYUPSDNHLXAWMJQOFECK"
+
 -- | A unmoving map, similar to the Rotors, which fed the electrical
 -- current back into Rotors. This would never feed the left Rotor's letter
 -- back to itself, meaning a plaintext character would never encrypt
 -- to itself. This was a major weakness in scheme which allowed the Allies
 -- to make Known Plaintext Attacks against the machine.
 type Reflector = Map (ℤ/26) (ℤ/26)
+
+ukwB :: Reflector
+ukwB = M.fromList (pairs & traverse . both %~ int)
+  where pairs = zip "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "YRUHQSLDPXNGOKMIEBFZCWVJAT"
 
 -- | A set of 10 pairs of connected letters which would map letters
 -- to other ones both before and after being put through the Rotors.
@@ -119,6 +153,12 @@ data EnigmaKey = EnigmaKey { _rotors    :: (Rotor,Rotor,Rotor)
                            } deriving (Eq,Show)
 makeLenses ''EnigmaKey
 
--- PICKING PLUGBOARD
--- Shuffle [A..Z], then take the first 20 Chars as 10 pairs, and
--- map the rest to themselves.
+-- | Generate settings for the Plugboard. Ten pairs of characters will
+-- be mapped to each other, and the remaining six characters will map
+-- to themselves.
+genPlugs :: CPRG g => g -> Plugboard
+genPlugs g = M.fromList (pairs <> singles)
+  where shuffled = shuffle g [0..25] 26
+        (ps,ss)  = (take 20 shuffled, drop 20 shuffled)
+        pairs    = foldr (\(k,v) acc -> (k,v) : (v,k) : acc) [] $ uniZip ps
+        singles  = foldr (\v acc -> (v,v) : acc) [] ss

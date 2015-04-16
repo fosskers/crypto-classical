@@ -49,7 +49,7 @@ instance Cipher [ℤ/26] Stream where
           f (kc:ks) (m:ms) 
             | isLower m = f (kc:ks) (toUpper m : ms)
             | not $ isLetter m = m : f ks ms
-            | otherwise = toLetter (toInt m + kc) : f ks ms
+            | otherwise = letter (int m + kc) : f ks ms
 
   decrypt k = encrypt k'
     where k' = map (* (-1)) k
