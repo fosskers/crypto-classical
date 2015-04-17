@@ -72,7 +72,3 @@ notSelfT f = do
 uniZipT :: IO ()
 uniZipT = quickCheck (\l -> length (uniZip l) == (length l `div` 2))
 -}
-
--- Possible with QuickCheck?
-genPlugsT :: IO Plugboard
-genPlugsT = genPlugs <$> gen

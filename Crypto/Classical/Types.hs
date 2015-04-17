@@ -20,6 +20,7 @@ module Crypto.Classical.Types
     -- * Keys
   , Key(..)
     -- * Enigma Types
+  , EnigmaKey(..)
   , Rotor(..)
   , Reflector
   , Plugboard
@@ -34,7 +35,7 @@ module Crypto.Classical.Types
 
 import           Control.Lens
 import           Crypto.Classical.Shuffle
-import           Crypto.Classical.Util (uniZip,int)
+import           Crypto.Classical.Util
 import           Crypto.Number.Generate
 import           Crypto.Random (CPRG)
 import           Data.ByteString.Lazy (ByteString)
@@ -125,7 +126,7 @@ rV :: Rotor
 rV = Rotor "V" (int 'Z') $ M.fromList (pairs & traverse . both %~ int)
   where pairs = zip "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "VZBRGITYUPSDNHLXAWMJQOFECK"
 
--- | A unmoving map, similar to the Rotors, which fed the electrical
+-- | A unmoving map, similar to the Rotors, which feeds the electrical
 -- current back into Rotors. This would never feed the left Rotor's letter
 -- back to itself, meaning a plaintext character would never encrypt
 -- to itself. This was a major weakness in scheme which allowed the Allies
@@ -146,12 +147,26 @@ type Plugboard = Map (ℤ/26) (ℤ/26)
 -- 2. Initial settings of those Rotors.
 -- 3. The Reflector model in use.
 -- 4. Plugboard settings (pairs of characters).
-data EnigmaKey = EnigmaKey { _rotors    :: (Rotor,Rotor,Rotor)
-                           , _settings  :: (Char,Char,Char)
+data EnigmaKey = EnigmaKey { _rotors    :: [Rotor]
+                           , _settings  :: [Char]
                            , _reflector :: Reflector
                            , _plugboard :: Plugboard
                            } deriving (Eq,Show)
 makeLenses ''EnigmaKey
+
+-- | Note that the randomly generated initial Rotor positions are not
+-- applied to the Rotors when the key is generated. They have to
+-- be applied before first use.
+instance Key EnigmaKey where
+  key g = EnigmaKey rs ss ukwB $ genPlugs g
+    where rn = 3  -- Number of Rotors to use.
+          rs = take rn $ shuffle g [rI,rII,rIII,rIV,rV] 5
+          ss = randChars g rn
+
+randChars :: CPRG g => g -> Int -> [Char]
+randChars _ 0 = []
+randChars g n = c : randChars g' (n-1)
+  where (c,g') = generateBetween g 0 25 & _1 %~ letter . toMod
 
 -- | Generate settings for the Plugboard. Ten pairs of characters will
 -- be mapped to each other, and the remaining six characters will map
