@@ -20,6 +20,7 @@ import           Control.Lens
 import           Control.Monad (void)
 import           Crypto.Classical.Cipher.Affine
 import           Crypto.Classical.Cipher.Caesar
+import           Crypto.Classical.Cipher.Enigma
 import           Crypto.Classical.Cipher.Stream
 import           Crypto.Classical.Cipher.Substitution
 import           Crypto.Classical.Cipher.Vigenere
@@ -49,11 +50,19 @@ testAll = void $ sequence [ cycleT $ view caesar
                           , cycleT $ view substitution
                           , cycleT $ view stream
                           , cycleT $ view vigenère
+                          , cycleT $ view enigma
                           , notSelfT $ view caesar
                           , notSelfT $ view affine
                           , notSelfT $ view substitution
                           , notSelfT $ view stream
                           , notSelfT $ view vigenère
+                          , notSelfT $ view enigma
+                          , diffKeyT $ view caesar
+                          , diffKeyT $ view affine
+                          , diffKeyT $ view substitution
+                          , diffKeyT $ view stream
+                          , diffKeyT $ view vigenère
+                          , diffKeyT $ view enigma
                           ]
 
 -- | An encrypted message should decrypt to the original plaintext.
@@ -66,9 +75,21 @@ cycleT f = do
 notSelfT :: (Monad c, Cipher k c) => (c ByteString -> ByteString) -> IO ()
 notSelfT f = do
   k <- key <$> gen
-  quickCheck (\m -> B.length m > 1 ==> m /= f (encrypt k m))
+  quickCheck (\m -> B.length m > 1 ==> m /= e f k m)
 
-{- 2015 April 16 @ 15:32 - This won't compile.
-uniZipT :: IO ()
-uniZipT = quickCheck (\l -> length (uniZip l) == (length l `div` 2))
--}
+-- | Different keys should yield different encryptions.
+diffKeyT :: (Eq k,Monad c,Cipher k c) => (c ByteString -> ByteString) -> IO ()
+diffKeyT f = do
+  k  <- key <$> gen
+  k' <- key <$> gen
+  quickCheck (\m -> k /= k' && B.length m > 1 ==> e f k m /= e f k' m)
+
+-- | Encrypt and unwrap a message.
+e :: Cipher k a => (a ByteString -> t) -> k -> ByteString -> t
+e f k m = f $ encrypt k m
+
+-- | A small manual test of Enigma.
+enig :: IO (Enigma ByteString)
+enig = do
+  k <- key <$> gen
+  return $ encrypt k "Das ist ein Wetterbericht. Heil Hitler."
