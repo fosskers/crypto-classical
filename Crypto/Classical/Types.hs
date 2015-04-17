@@ -158,11 +158,12 @@ makeLenses ''EnigmaKey
 -- applied to the Rotors when the key is generated. They have to
 -- be applied before first use.
 instance Key EnigmaKey where
-  key g = EnigmaKey rs ss ukwB $ genPlugs g
+  key g = EnigmaKey rs ss ukwB $ randPlug g
     where rn = 3  -- Number of Rotors to use.
           rs = take rn $ shuffle g [rI,rII,rIII,rIV,rV] 5
           ss = randChars g rn
 
+-- | Generate random start positions for the Rotors.
 randChars :: CPRG g => g -> Int -> [Char]
 randChars _ 0 = []
 randChars g n = c : randChars g' (n-1)
@@ -171,8 +172,8 @@ randChars g n = c : randChars g' (n-1)
 -- | Generate settings for the Plugboard. Ten pairs of characters will
 -- be mapped to each other, and the remaining six characters will map
 -- to themselves.
-genPlugs :: CPRG g => g -> Plugboard
-genPlugs g = M.fromList (pairs <> singles)
+randPlug :: CPRG g => g -> Plugboard
+randPlug g = M.fromList (pairs <> singles)
   where shuffled = shuffle g [0..25] 26
         (ps,ss)  = (take 20 shuffled, drop 20 shuffled)
         pairs    = foldr (\(k,v) acc -> (k,v) : (v,k) : acc) [] $ uniZip ps

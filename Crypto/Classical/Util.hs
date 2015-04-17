@@ -57,7 +57,7 @@ rseq g n = rseq' g (n - 1) ^.. traverse . _1
 
 -- | Invert a Map. Keys become values, values become keys.
 -- Note that this operation may result in a smaller Map than the original.
-mapInverse :: Ord v => Map k v -> Map v k
+mapInverse :: (Ord k, Ord v) => Map k v -> Map v k
 mapInverse = M.foldrWithKey (\k v acc -> M.insert v k acc) M.empty
 
 -- | Compose two Maps. If some key `v` isn't present in the second
