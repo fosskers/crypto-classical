@@ -36,17 +36,21 @@ instance Monad Enigma where
   return = pure
   Enigma a >>= f = f a
 
--- | Decryption is the same as encryption.
+-- | When a machine operator presses a key, the Rotors rotate.
+-- A circuit is then completed as they hold the key down, and a bulb
+-- is lit. Here, we make sure to rotate the Rotors before encrypting
+-- the character.
+-- NOTE: Decryption is the same as encryption.
 instance Cipher EnigmaKey Enigma where
   decrypt = encrypt
   encrypt k m = pure . B.pack $ evalState (traverse f $ B.unpack m) k'
-    where k' = withInitialSettings k
+    where k' = withInitPositions k
           f c | not $ isLetter c = return c
               | isLower c = f $ toUpper c
               | otherwise = do
                   modify (& rotors %~ turn)
                   (EnigmaKey rots _ rl pl) <- get
-                  let rs  = map _circuit rots
+                  let rs  = rots ^.. traverse . circuit
                       rs' = reverse $ map mapInverse rs
                       pl' = mapInverse pl
                       cmp = foldl1 compose
@@ -56,8 +60,8 @@ instance Cipher EnigmaKey Enigma where
 -- | Applies the initial Rotor settings as defined in the Key to
 -- the Rotors themselves. These initial rotations do not trigger
 -- the turnover of neighbouring Rotors as usual.
-withInitialSettings :: EnigmaKey -> EnigmaKey
-withInitialSettings k = k & rotors .~ zipWith f (k ^. rotors) (k ^. settings)
+withInitPositions :: EnigmaKey -> EnigmaKey
+withInitPositions k = k & rotors .~ zipWith f (k ^. rotors) (k ^. settings)
   where f r s = (r & circuit %~ rotate (int s)
                    & turnover -~ (int s))
 

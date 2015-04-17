@@ -63,6 +63,7 @@ testAll = void $ sequence [ cycleT $ view caesar
                           , diffKeyT $ view stream
                           , diffKeyT $ view vigenère
                           , diffKeyT $ view enigma
+                          , noSelfMappingT
                           ]
 
 -- | An encrypted message should decrypt to the original plaintext.
@@ -84,12 +85,18 @@ diffKeyT f = do
   k' <- key <$> gen
   quickCheck (\m -> k /= k' && B.length m > 1 ==> e f k m /= e f k' m)
 
+-- | A letter can never encrypt to itself.
+noSelfMappingT :: IO ()
+noSelfMappingT = do
+  k <- key <$> gen
+  quickCheck (\m -> all (\(a,b) -> a /= b) $ B.zip m (e _enigma k m))
+
 -- | Encrypt and unwrap a message.
 e :: Cipher k a => (a ByteString -> t) -> k -> ByteString -> t
 e f k m = f $ encrypt k m
 
 -- | A small manual test of Enigma.
-enig :: IO (Enigma ByteString)
+enig :: IO ByteString
 enig = do
   k <- key <$> gen
-  return $ encrypt k "Das ist ein Wetterbericht. Heil Hitler."
+  return $ encrypt k "Das ist ein Wetterbericht. Heil Hitler." ^. enigma
