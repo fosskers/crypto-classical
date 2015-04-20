@@ -10,14 +10,10 @@
 \usepackage{listings}
 
 \lstdefinelanguage{haskell}{
-  morekeywords={data,type,newtype,instance,class,module,import},
-  otherkeywords={=>,>>=,<-,<\%,<:,>:,\#,@},
+  morekeywords={data,type,newtype,instance,class,module,import,if,then,else,where,deriving},
   sensitive=true,
-  morecomment=[l]{//},
-  morecomment=[n]{/*}{*/},
-  morestring=[b]",
-  morestring=[b]',
-  morestring=[b]"""
+  morecomment=[l]{--},
+  morestring=[b]"
 }
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
@@ -78,15 +74,133 @@ library hosting service for Haskell), no libraries treating classical
 ciphers existed. Considering many other such ``toy'' libraries are
 present there, this was surprising.
 
-\subsection{Design}
+Through the course of the library's implementation I took a particular
+interest in Enigma. It occured to me that it may be viable
+as a modern encyption scheme, should certain critical modifications
+be made. These are described in detail in the Enigma section below.
 
-\subsubsection{Random Keys}
+\subsection{Installation}
+The official release of \emph{crypto-classical} is available on Hackage
+here: \url{here}
+
+\subsubsection{Haskell Platform}
+This library requires \emph{ghc} $\geq$ 7.8 and
+\emph{cabal-install} $\geq$ 1.20.\\
+They are available here: \url{https://www.haskell.org/downloads}
+
+\subsubsection{Compiling}
+In an empty directory within a Terminal,
+run \fbox{cabal sandbox init}. This will create a
+sandbox for dependency modules, so that the global state of your Haskell
+packages won't be affected.\\
+Next, run \fbox{cabal install crypto-classical}. This will install the
+library and its dependencies into your sandbox.
+
+\subsubsection{Testing in a REPL}
+Run \fbox{cabal repl} in your sandboxed directory. Inside the repl,
+execute \fbox{import Crypto.Classical} to import every function
+exported by the library. We can then perform simple, manual tests:
+
+\begin{lstlisting}
+> import Crypto.Classical
+> import Control.Lens
+> :set -XOverloadedStrings
+> (key <$> prng) >>= \k -> return (encrypt k "What a great day for an attack!" ^. enigma)
+\end{lstlisting}
+
+See the \textbf{Testing} section below for more information.
+
+\subsection{Design}
+Haskell was chosen as the implementation language as it is very
+aesthetically and functionally mathematical,
+which allows for short, expressive code.\\
+Below are described several conveniences afforded us through Haskell.
+
 \subsubsection{Type-level Modular Arithmetic}
-\subsubsection{Polymorphic Cipher Choice}
+The library \emph{modular-arithmetic}, alongside several built-in
+optional compiler extensions (marked with \emph{LANGUAGE}),
+provides us with a means for defining
+modular integer Rings of any positive size.
+
+\lstset{extendedchars=false,
+escapeinside=**}
+\begin{lstlisting}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeOperators #-}
+
+-- Yields 6. *$\mathbb{Z}$* is a type alias for Integer, and 26 is the period.
+foo :: *$\mathbb{Z}$*/26
+foo = 20 + 12
+
+-- Yields [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]
+-- This would normally be an infinite list with any other number type.
+bar :: [*$\mathbb{Z}$*/26]
+bar = [1..]
+\end{lstlisting}
+
+\subsubsection{Random Keys and Polymorphic Cipher Choice}
+Two simple \emph{typeclasses} let us define a type-level Key-Cipher
+relationship, as well as a means of polymorphically generating keys.
+
+\begin{lstlisting}
+-- | Keys can appear in a number of different forms.
+-- E.g. a single number, a tuple, a mapping, etc.
+-- Each needs to be interpreted uniquely by a Cipher's
+-- `encrypt` and `decrypt` algorithms.
+class Key a where
+  -- | Randomly generate a Key.
+  key :: CPRG g => g -> a
+
+-- | A Cipher must be able to encrypt and decrypt. The Cipher type
+-- determines the Key type.
+class Key k => Cipher k a | a -> k where
+  encrypt :: k -> ByteString -> a ByteString
+  decrypt :: k -> ByteString -> a ByteString  
+\end{lstlisting}
+
+Given an instance of the \emph{Key} class for some key type,
+we can generate keys with the \emph{key} function just by constricting
+its return type.
+
+\begin{lstlisting}
+instance Key (*$\mathbb{Z}$*/26) where
+  key g = toMod . fst $ generateBetween g 1 25
+  
+caesarKey :: CPRG g => g -> *$\mathbb{Z}$*/26
+caesarKey = key 
+\end{lstlisting}
+
+Or, thanks to the \emph{Cipher} class defined above, we can force the key
+type using our Cipher ``unwrapper'' functions. You can think of \fbox{\^{}.}
+ operator as meaning ``with'' or ``as''.
+
+\begin{lstlisting}
+foo :: CPRG g => g -> ByteString
+foo g = encrypt (key g) "Haskell sure is great." ^. caesar
+
+bar :: CPRG g => g -> ByteString
+bar g = encrypt (key g) "Haskell sure is great." ^. stream
+\end{lstlisting}
+
+Our unwrapper functions (\emph{caesar} and \emph{stream} here) force the
+types of both \emph{encrypt} and \emph{key}.
+
 \subsubsection{Lenses}
 A relatively recent addition to the Funtional Programming world, Lenses
-provide a means to access and modify data fields in (potentially) nested,
-immutable data structures.
+provide a light-weight interface to access and modify data fields in
+(potentially) nested,
+immutable data structures. For instance, the \emph{Enigma} module
+simulates Rotor rotation with this short function using Lenses:
+
+\begin{lstlisting}
+-- | Turn the (machine's) right-most (left-most in List) Rotor by one
+-- position. If its turnover value wraps back to 25, then turn the next
+-- Rotor as well.
+turn :: [Rotor] -> [Rotor]
+turn [] = []
+turn (r:rs) = if (r' ^. turnover) == 25 then r' : turn rs else r' : rs
+  where r' = r & circuit %~ rotate 1 & turnover -~ 1
+\end{lstlisting}
 
 \subsection{Licensing}
 \fbox{crypto-classical} is available under the terms of the \textbf{BSD3}
@@ -95,16 +209,63 @@ license.
 % === %
 
 \section{Simple Ciphers}
+For more information on these Ciphers, see the documentation provided
+in the source code.
 
 \subsection{Caesar}
+\textbf{Module:} Crypto.Classical.Cipher.Caesar\\
+\textbf{Key Type:} A shift value.
+A number in $\mathbb{Z}_{26}$, except 0. We exclude
+0 to maintain a requirement of all our ciphers: No message may encrypt
+to itself.\\
+\textbf{Encryption:} Add the shift value to each character (as a number).
+The modular type $\mathbb{Z}/26$ wraps values over or under 25 automatically.\\
+\textbf{Decryption:} Flip the sign of the key and encrypt again.
 
 \subsection{Affine}
+\textbf{Module:} Crypto.Classical.Cipher.Affine\\
+\textbf{Key Type:} A pair of numbers $(a,b)$, each in $\mathbb{Z}_{26}$. $a$
+must be coprime with 26 or decryption is impossible.\\
+\textbf{Encryption:} \fbox{$E_k(c) = ac + b \mod 26$} for every $c$ in the plaintext.\\
+\textbf{Decryption:} \fbox{$D_k(c) = a^{-1} \cdot (c - b)$} for every $c$
+in the ciphertext.
 
 \subsection{Substitution}
+\textbf{Module:} Crypto.Classical.Cipher.Substitution\\
+\textbf{Key Type:} A random mapping (Haskell's \emph{Map} type) between
+plaintext letters and cipher letters. A letter can map to itself.
+Technically here the ``identity'' key also exists by this algorithm,
+but the probability
+of generating it is $\frac{1}{26!}$ (\~{}29 quintillion times harder than
+winning the Lotto 649).\\
+\textbf{Encryption:} For each plaintext character, simply look it up
+in our \emph{Map}.\\
+\textbf{Decryption:} Invert the Map (possible, since the Map is bijective
+on capital Latin letters) and encrypt.
 
 \subsection{Stream}
+\textbf{Module:} Crypto.Classical.Cipher.Stream\\
+\textbf{Key Type:} An infinite list of shift values (integers) in
+$\mathbb{Z}_{26}$.\\
+\textbf{Encryption:} For each letter in the plaintext, add its corresponding
+shift value from the key.\\
+\textbf{Decryption:} Multiply every (yes, every) value in the key by $-1$,
+and encrypt. This is possible because Haskell is lazy, and will only
+flip the sign of as many key values as it needs to.
 
 \subsection{Vigenère}
+\textbf{Module:} Crypto.Classical.Cipher.Vigenere\\
+\textbf{Key Type:} An infinite list of shift values (integers) in
+$\mathbb{Z}_{26}$ with a repeating pattern.
+A key generated by \emph{key} has no pattern initially.
+It borrows \emph{key} from the \emph{Stream} instance,
+shortens the key generated to a factor of the plaintext length,
+and then repeats
+that pattern forever.\\
+\textbf{Encryption:} Call the \emph{encrypt} function from \emph{Stream}
+with the Vigenère key.\\
+\textbf{Decryption:} Call the \emph{decrypt} function from \emph{Stream}
+with the Vigenère key.
 
 % === %
 
