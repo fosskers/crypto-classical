@@ -18,12 +18,7 @@ module Crypto.Classical.Test
 
 import           Control.Lens
 import           Control.Monad (void)
-import           Crypto.Classical.Cipher.Affine
-import           Crypto.Classical.Cipher.Caesar
-import           Crypto.Classical.Cipher.Enigma
-import           Crypto.Classical.Cipher.Stream
-import           Crypto.Classical.Cipher.Substitution
-import           Crypto.Classical.Cipher.Vigenere
+import           Crypto.Classical.Cipher
 import           Crypto.Classical.Letter
 import           Crypto.Classical.Types
 import           Crypto.Random

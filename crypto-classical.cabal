@@ -38,13 +38,19 @@ cabal-version:       >=1.10
 
 
 library
-  exposed-modules:     Crypto.Classical.Types
+  exposed-modules:     Crypto.Classical
+                     , Crypto.Classical.Cipher
+                     , Crypto.Classical.Letter
                      , Crypto.Classical.Shuffle
+                     , Crypto.Classical.Types
+                     , Crypto.Classical.Test
+                     , Crypto.Classical.Util
                      , Crypto.Classical.Cipher.Caesar
                      , Crypto.Classical.Cipher.Affine
                      , Crypto.Classical.Cipher.Stream
                      , Crypto.Classical.Cipher.Substitution
                      , Crypto.Classical.Cipher.Vigenere
+                     , Crypto.Classical.Cipher.Enigma
   
   -- Modules included in this library but not exported.
   -- other-modules:       
