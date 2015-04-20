@@ -274,12 +274,14 @@ with the Vigenère key.
 \subsection{Design Notes}
 All wiring information in this section was found at the
 \href{http://www.cryptomuseum.com/crypto/enigma/wiring.htm}{Crypto Museum}
-website.
+website. Much more detail can be found in the documentation within
+the source code.
 
 \subsubsection{Models}
 There were many Enigma models, both commercial and military. This library
 provides an implementation of the Wehrmacht Enigma I (1930-38), which
-had 3 rotors. Two extra choices of rotors were added in December 1938.
+had 3 rotors. Two extra choices of rotors were added in December 1938, and
+our implementation reflects this.
 
 \subsubsection{Rotor Wirings}
 Rotors are referred to by Roman numerals. They each have unique
@@ -301,7 +303,7 @@ Rotor details: \url{https://en.wikipedia.org/wiki/Enigma_rotor_details}
 \subsubsection{Reflector Wirings}
 There were also several reflector models. While some rotated, the army
 and air force reflectors did not.\\
-We should use the \emph{Umkehrwalze B}, which appeared in November 1937
+We use the \emph{Umkehrwalze B}, which appeared in November 1937
 and would have been in use when the extra rotor choices were added in 1938.
 The \emph{Umkehrwalze C} was only used briefly in 1940.\\
 
@@ -324,6 +326,17 @@ The encryption key has five components:
 \item Initial rotor positions
 \item Plugboard wiring
 \end{enumerate}
+The implementation presented in this library choses to ignore Alphabet ring
+position relative to the rotor. In fact, we largely ignore the concept of
+letters altogether. A rotor is just a series of entry points mapping
+to exit points, meaning we can represent these numerically
+(as \emph{\_circuit} below):
+
+\begin{lstlisting}
+data Rotor = Rotor { _name     :: Text
+                   , _turnover :: *$\mathbb{Z}$*/26
+                   , _circuit  :: Map (*$\mathbb{Z}$*/26) (*$\mathbb{Z}$*/26) } deriving (Eq,Show)  
+\end{lstlisting}
 
 \subsection{Encryption}
 The mechanical ordering of the encryption steps can be described
@@ -342,8 +355,119 @@ Where:
 \item $U$ is the reflector
 \end{itemize}
 
+The act of reflection simulates six rotors, as there was limited space
+within the body of the machine. 
+
+\subsection{A Modern Enigma Scheme}
+The original Enigma was limited in how many rotors it could hold within
+it. Later models squeezed a fourth one in, and some had rotating
+reflectors as well. Reflectors essentially simulated a doubling of the
+amount of rotors within the machine, but they also introduced the weakness
+that allowed the Allies to make Known Plaintext Attacks against it.\\
+
+How many rotors would have made Enigma (computationally)
+uncrackable? Algorithms within modern computers aren't limited by physical
+space as Enigma was.
+Would Enigma, given $n$ sufficiently many
+rotors within a computer be viable as a modern encryption tool?
+
+\subsubsection{Modern Adaptation}
+\begin{itemize}
+\item \textbf{Rotors:} To be viable in a modern setting, we need to
+  consider bits, not Latin letters. Thus, each rotor only has two entry
+  and exit points, and
+  there are only two types of rotor possible (not $26!$). These would be
+  the rotor which maps a bit to itself, and that which maps a bit to
+  its opposite. Let us assume that both rotor \textbf{turnover points} are
+  sufficient if set to the transition between 1 and 0. This assumption may
+  be false, but there are not many other positions to consider.
+  \begin{center}
+    Straight Rotor\\
+    \begin{tabular}{c | c}
+      input & output\\
+      \hline
+      0 & 0\\
+      1 & 1
+    \end{tabular}
+  \end{center}
+    \begin{center}
+    Crossed Rotor\\
+    \begin{tabular}{c | c}
+      input & output\\
+      \hline
+      0 & 1\\
+      1 & 0
+    \end{tabular}
+  \end{center}
+    Note that traditional rotation for each rotor doesn't change the output.
+    Hence, upon rotation, we will flip the wiring, making one rotor
+    into the other.
+
+\item \textbf{Plugboard:} The plugboard was essentially a programmable rotor.
+ Since our modern formulation only has two rotor types possible, an analogy
+ to a plugboard is not necessary.
+\item \textbf{Reflector:} A reflector is also not necessary, as instead
+  of reflecting back upon the previous $n$ rotors, we can just encrypt with
+  $2n$ rotors and achieve a result free of the weakness of the original
+  Enigma.
+\item \textbf{Key:} Given $n$ rotors, we need only supply one $n$-bit
+  number as the key. Since during rotation rotors become one another,
+  we need only specify what they started as.\\
+  Let $0$ indicate a Straight Rotor and 1 indicate a Crossed Rotor.
+
+\end{itemize}
+
+\subsubsection{Scheme Description}
+Let $(K,E,D)$ be a triple of algorithms such that:
+\begin{itemize}
+\item $K$ uniformly generates a random key in $\{0,1\}^n$ where $n$ is the
+  number of rotors.
+\item $E_k$ encrypts one bit of the plaintext at a time by first resolving
+  all rotor rotations, then sending the bit through the ``circuit'' of
+  $n$ rotors.
+\item $D_k(C) = E_k(C)$
+\end{itemize}
+
+\subsubsection{Key Entropy}
+The Enigma as defined in this library has the following key entropy:
+\begin{align*}
+  \text{Rotor Choices} &= 5 \cdot 4 \cdot 3\\
+  \text{Rotor Positions} &= 26 \cdot 26 \cdot 26\\
+  \text{Plugboard Wiring} &= \frac{26!}{6!10!2^{10}}\\
+  \text{Total Product (Keys)} &= 158,962,555,217,826,360,000 \approx 1.59 \cdot 10^{20}
+\end{align*}
+
+The number of possible keys for our modified scheme is $2^n$, where $n$
+is the number of rotors. With only 68 rotors
+$(2^{68} \approx 2.95 \cdot 10^{20})$ we reach a comparable number of
+keys to the original. \\
+
+\textbf{Open Question:} What is the ideal number of rotors? 1000 rotors
+means keys of 1000 bits which are easy to generate,
+with $2^{1000}$ possible keys.
+
+\subsubsection{Security}
+Left open for critique.
+
 % === %
 
-\section{Attacks}
+\section{Testing}
+The module \fbox{Crypto.Classical.Test} provides unit tests which
+generate random input data and test certain properties over all the
+ciphers. We require three properties hold for the Simple Ciphers, and four
+for Enigma:
+
+\begin{enumerate}
+\item \textbf{Cycle:} An encrypted plaintext should decrypt
+  to the original message.
+\item \textbf{No Identity:} A plaintext should never encrypt to itself.
+\item \textbf{Different Keys:} Different keys should produce a
+  different ciphertext given the same plaintext.
+\item \textbf{(Enigma only) No Character Identity:} Any character of
+  the plaintext should never encrypt to itself. This is a weakness, but is
+  part of the original Enigma nonetheless.
+\end{enumerate}
+
+The function \fbox{testAll} within this module runs all the tests.
 
 \end{document}
