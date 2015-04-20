@@ -14,7 +14,8 @@ module Crypto.Classical.Util
   , int
     -- * Modular Arithmetic
   , inverse
-    -- * Random Sequences
+    -- * Random Numbers
+  , prng
   , rseq
     -- * Map function
   , mapInverse
@@ -44,6 +45,9 @@ int c = toMod . toInteger $ ord c - ord 'A'
 -- | Must be passed a number coprime with 26.
 inverse :: ℤ/26 -> ℤ/26
 inverse a = toMod $ inverseCoprimes (unMod a) 26
+
+prng :: IO SystemRNG
+prng = fmap cprgCreate createEntropyPool
 
 -- | The sequence (r1,...r[n-1]) of numbers such that r[i] is an
 -- independent sample from a uniform random distribution

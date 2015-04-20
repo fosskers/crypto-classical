@@ -21,7 +21,7 @@ import           Control.Monad (void)
 import           Crypto.Classical.Cipher
 import           Crypto.Classical.Letter
 import           Crypto.Classical.Types
-import           Crypto.Random
+import           Crypto.Classical.Util (prng)
 import           Data.ByteString.Lazy.Char8 (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as B
 import           Test.QuickCheck
@@ -34,9 +34,6 @@ instance Arbitrary ByteString where
   arbitrary = B.pack . map _char <$> arbitrary
 
 ---
-
-gen :: IO SystemRNG
-gen = fmap cprgCreate createEntropyPool
 
 -- | Run every test on every Cipher.
 testAll :: IO ()
@@ -64,26 +61,26 @@ testAll = void $ sequence [ cycleT $ view caesar
 -- | An encrypted message should decrypt to the original plaintext.
 cycleT :: (Monad c, Cipher k c) => (c ByteString -> ByteString) -> IO ()
 cycleT f = do
-  k <- key <$> gen
+  k <- key <$> prng
   quickCheck (\m -> f (encrypt k m >>= decrypt k) == m)
 
 -- | A message should never encrypt to itself.
 notSelfT :: (Monad c, Cipher k c) => (c ByteString -> ByteString) -> IO ()
 notSelfT f = do
-  k <- key <$> gen
+  k <- key <$> prng
   quickCheck (\m -> B.length m > 1 ==> m /= e f k m)
 
 -- | Different keys should yield different encryptions.
 diffKeyT :: (Eq k,Monad c,Cipher k c) => (c ByteString -> ByteString) -> IO ()
 diffKeyT f = do
-  k  <- key <$> gen
-  k' <- key <$> gen
+  k  <- key <$> prng
+  k' <- key <$> prng
   quickCheck (\m -> k /= k' && B.length m > 1 ==> e f k m /= e f k' m)
 
 -- | A letter can never encrypt to itself.
 noSelfMappingT :: IO ()
 noSelfMappingT = do
-  k <- key <$> gen
+  k <- key <$> prng
   quickCheck (\m -> all (\(a,b) -> a /= b) $ B.zip m (e _enigma k m))
 
 -- | Encrypt and unwrap a message.
@@ -93,5 +90,5 @@ e f k m = f $ encrypt k m
 -- | A small manual test of Enigma.
 enig :: IO ByteString
 enig = do
-  k <- key <$> gen
+  k <- key <$> prng
   return $ encrypt k "Das ist ein Wetterbericht. Heil Hitler." ^. enigma
