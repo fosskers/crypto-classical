@@ -1,10 +1,10 @@
-module Crypto.Classical.Letter where
-
 -- |
 -- Module    : Crypto.Classical.Letter
 -- Copyright : (c) Colin Woodbury, 2015
 -- License   : BSD3
 -- Maintainer: Colin Woodbury <colingw@gmail.com>
+
+module Crypto.Classical.Letter where
 
 import Data.Char
 import Test.QuickCheck
