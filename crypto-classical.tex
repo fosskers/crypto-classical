@@ -81,7 +81,9 @@ be made. These are described in detail in the Enigma section below.
 
 \subsection{Installation}
 The official release of \emph{crypto-classical} is available on Hackage
-here: \url{here}
+here: \url{http://hackage.haskell.org/package/crypto-classical}\\
+If you would like to download the source code directly,\\
+you can find it here: \url{https://github.com/fosskers/crypto-classical}
 
 \subsubsection{Haskell Platform}
 This library requires \emph{ghc} $\geq$ 7.8 and
@@ -183,7 +185,8 @@ bar g = encrypt (key g) "Haskell sure is great." ^. stream
 \end{lstlisting}
 
 Our unwrapper functions (\emph{caesar} and \emph{stream} here) force the
-types of both \emph{encrypt} and \emph{key}.
+types of both \emph{encrypt} and \emph{key}. The six unwrappers are
+\fbox{caesar, affine, stream, substitution, vigenere, enigma}.
 
 \subsubsection{Lenses}
 A relatively recent addition to the Funtional Programming world, Lenses
