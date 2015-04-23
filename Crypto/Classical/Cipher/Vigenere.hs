@@ -13,6 +13,7 @@
 
 module Crypto.Classical.Cipher.Vigenere where
 
+import           Control.Applicative
 import           Control.Lens
 import           Crypto.Classical.Cipher.Stream
 import           Crypto.Classical.Types

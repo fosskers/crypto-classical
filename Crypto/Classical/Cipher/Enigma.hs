@@ -12,6 +12,7 @@
 
 module Crypto.Classical.Cipher.Enigma where
 
+import           Control.Applicative
 import           Control.Lens
 import           Control.Monad.Trans.State.Lazy
 import           Crypto.Classical.Types

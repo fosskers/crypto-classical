@@ -14,6 +14,7 @@
 
 module Crypto.Classical.Cipher.Caesar where
 
+import           Control.Applicative
 import           Control.Lens
 import           Crypto.Classical.Types
 import           Crypto.Classical.Util

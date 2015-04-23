@@ -12,6 +12,7 @@
 
 module Crypto.Classical.Cipher.Substitution where
 
+import           Control.Applicative
 import           Control.Lens
 import           Crypto.Classical.Types
 import           Crypto.Classical.Util
