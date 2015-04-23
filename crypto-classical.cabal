@@ -1,13 +1,37 @@
--- The name of the package.
 name:                crypto-classical
 
-version:             0.0.1
+version:             0.0.2
 
 synopsis:            An educational tool for studying classical cryptography schemes.
 
 description:         An educational tool for studying classical cryptography
                      schemes. Do not encrypt anything of worth with this
                      library.
+                     .
+                     /Included Ciphers:/
+                     .
+                     * Caesar
+                     .
+                     * Affine (Linear)
+                     .
+                     * Substitution
+                     .
+                     * Stream
+                     .
+                     * Vigenere
+                     .
+                     * Enigma (Wehrmacht Enigma I)
+                     .
+                     Thanks to polymorphism, we can generate keys and encrypt
+                     ByteStrings without worrying much about types:
+                     .
+                     > > import Crypto.Classical
+                     > > import Control.Lens
+                     > > :set -XOverloadedStrings
+                     > > (key <$> prng) >>= \k -> return (encrypt k "What a great day for an attack!" ^. enigma)
+                     > "PXQS D KXSGB CFC AYK XJ DEGMON!"
+                     > > (key <$> prng) >>= \k -> return (encrypt k "What a great day for an attack!" ^. caesar)
+                     > "RCVO V BMZVO YVT AJM VI VOOVXF!"
 
 homepage:            https://github.com/fosskers/crypto-classical
 
