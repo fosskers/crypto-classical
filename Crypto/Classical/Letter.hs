@@ -6,6 +6,7 @@
 
 module Crypto.Classical.Letter where
 
+import Control.Applicative ((<$>))
 import Data.Char
 import Test.QuickCheck
 

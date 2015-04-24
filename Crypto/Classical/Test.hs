@@ -16,6 +16,7 @@ module Crypto.Classical.Test
   , testAll
   ) where
 
+import           Control.Applicative ((<$>))
 import           Control.Lens
 import           Control.Monad (void)
 import           Crypto.Classical.Cipher
