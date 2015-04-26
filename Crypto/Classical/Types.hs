@@ -31,6 +31,7 @@ module Crypto.Classical.Types
   , settings
   , reflector
   , plugboard
+  , plugFrom
   ) where
 
 import           Control.Lens
@@ -39,6 +40,7 @@ import           Crypto.Classical.Util
 import           Crypto.Number.Generate
 import           Crypto.Random (CPRG)
 import           Data.ByteString.Lazy (ByteString)
+import           Data.Char (isUpper)
 import           Data.List ((\\))
 import           Data.Map.Lazy (Map)
 import qualified Data.Map.Lazy as M
@@ -178,3 +180,13 @@ randPlug g = M.fromList (pairs <> singles)
         (ps,ss)  = (take 20 shuffled, drop 20 shuffled)
         pairs    = foldr (\(k,v) acc -> (k,v) : (v,k) : acc) [] $ uniZip ps
         singles  = foldr (\v acc -> (v,v) : acc) [] ss
+
+-- | Given a list of letter pairs, generates a Plugboard.
+-- Any letters left out of the pair list will be mapped to themselves.
+plugFrom :: [(Char,Char)] -> Plugboard
+plugFrom = f []
+  where f acc [] = let rest = stretch (['A'..'Z'] \\ acc) in
+                    M.fromList . uniZip . map int $ acc ++ rest
+        f acc ((a,b):ps) | a `notElem` acc && b `notElem` acc &&
+                           isUpper a && isUpper b = f (a : b : b : a : acc) ps
+                         | otherwise = f acc ps

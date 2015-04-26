@@ -9,9 +9,14 @@
 
 module Crypto.Classical.Test
   (
-    -- * Single Tests
+    -- * Cipher Tests
     cycleT
   , notSelfT
+  , diffKeyT
+  , noSelfMappingT
+    -- * Misc. Tests
+  , stretchT
+  , plugFromT
     -- * Batch Tests
   , testAll
   ) where
@@ -22,9 +27,10 @@ import           Control.Monad (void)
 import           Crypto.Classical.Cipher
 import           Crypto.Classical.Letter
 import           Crypto.Classical.Types
-import           Crypto.Classical.Util (prng)
+import           Crypto.Classical.Util
 import           Data.ByteString.Lazy.Char8 (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as B
+import qualified Data.Foldable as F
 import           Test.QuickCheck
 
 ---
@@ -38,26 +44,32 @@ instance Arbitrary ByteString where
 
 -- | Run every test on every Cipher.
 testAll :: IO ()
-testAll = void $ sequence [ cycleT $ view caesar
-                          , cycleT $ view affine
-                          , cycleT $ view substitution
-                          , cycleT $ view stream
-                          , cycleT $ view vigenère
-                          , cycleT $ view enigma
-                          , notSelfT $ view caesar
-                          , notSelfT $ view affine
-                          , notSelfT $ view substitution
-                          , notSelfT $ view stream
-                          , notSelfT $ view vigenère
-                          , notSelfT $ view enigma
-                          , diffKeyT $ view caesar
-                          , diffKeyT $ view affine
-                          , diffKeyT $ view substitution
-                          , diffKeyT $ view stream
-                          , diffKeyT $ view vigenère
-                          , diffKeyT $ view enigma
-                          , noSelfMappingT
-                          ]
+testAll = void . sequence $ cipherTs ++ otherTs
+
+cipherTs :: [IO ()]
+cipherTs = [ cycleT $ view caesar
+           , cycleT $ view affine
+           , cycleT $ view substitution
+           , cycleT $ view stream
+           , cycleT $ view vigenère
+           , cycleT $ view enigma
+           , notSelfT $ view caesar
+           , notSelfT $ view affine
+           , notSelfT $ view substitution
+           , notSelfT $ view stream
+           , notSelfT $ view vigenère
+           , notSelfT $ view enigma
+           , diffKeyT $ view caesar
+           , diffKeyT $ view affine
+           , diffKeyT $ view substitution
+           , diffKeyT $ view stream
+           , diffKeyT $ view vigenère
+           , diffKeyT $ view enigma
+           , noSelfMappingT
+           ]
+
+otherTs :: [IO ()]
+otherTs = [ stretchT, plugFromT ]
 
 -- | An encrypted message should decrypt to the original plaintext.
 cycleT :: (Monad c, Cipher k c) => (c ByteString -> ByteString) -> IO ()
@@ -93,3 +105,16 @@ enig :: IO ByteString
 enig = do
   k <- key <$> prng
   return $ encrypt k "Das ist ein Wetterbericht. Heil Hitler." ^. enigma
+
+-- | A stretch should always double the length.
+stretchT :: IO ()
+stretchT = quickCheck prop
+  where prop :: [Int] -> Property
+        prop xs = let l = length xs in l > 0 ==> length (stretch xs) == 2 * l
+
+-- | Any list of pairs should always result in a Plugboard of 26 mappings.
+plugFromT :: IO ()
+plugFromT = quickCheck prop
+  where prop :: [(Letter,Letter)] -> Bool
+        prop xs = let xs' = xs & traverse . both %~ _char in
+                   F.length (plugFrom xs') == 26

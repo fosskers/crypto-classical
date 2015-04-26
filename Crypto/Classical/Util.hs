@@ -23,6 +23,7 @@ module Crypto.Classical.Util
   , (|.|)
     -- * Miscellaneous
   , uniZip
+  , stretch
   ) where
 
 import           Control.Lens
@@ -88,3 +89,12 @@ uniZip :: [a] -> [(a,a)]
 uniZip []       = []
 uniZip [_]      = []
 uniZip (a:b:xs) = (a,b) : uniZip xs
+
+-- | Stretch the contents of a list. List becomes twice a long.
+-- List must be finite.
+-- Example:
+--
+-- >>> stretch [1,2,3,4]
+-- [1,1,2,2,3,3,4,4]
+stretch :: [a] -> [a]
+stretch = foldr (\x acc -> x : x : acc) []
