@@ -26,7 +26,7 @@ module Crypto.Classical.Util
   , stretch
   ) where
 
-import           Control.Lens
+import           Lens.Micro
 import           Crypto.Number.Generate
 import           Crypto.Number.ModArithmetic (inverseCoprimes)
 import           Crypto.Random

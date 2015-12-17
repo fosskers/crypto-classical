@@ -21,8 +21,7 @@ module Crypto.Classical.Test
   , testAll
   ) where
 
-import           Control.Applicative ((<$>))
-import           Control.Lens
+import           Lens.Micro
 import           Control.Monad (void)
 import           Crypto.Classical.Cipher
 import           Crypto.Classical.Letter
@@ -47,24 +46,24 @@ testAll :: IO ()
 testAll = void . sequence $ cipherTs ++ otherTs
 
 cipherTs :: [IO ()]
-cipherTs = [ cycleT $ view caesar
-           , cycleT $ view affine
-           , cycleT $ view substitution
-           , cycleT $ view stream
-           , cycleT $ view vigenère
-           , cycleT $ view enigma
-           , notSelfT $ view caesar
-           , notSelfT $ view affine
-           , notSelfT $ view substitution
-           , notSelfT $ view stream
-           , notSelfT $ view vigenère
-           , notSelfT $ view enigma
-           , diffKeyT $ view caesar
-           , diffKeyT $ view affine
-           , diffKeyT $ view substitution
-           , diffKeyT $ view stream
-           , diffKeyT $ view vigenère
-           , diffKeyT $ view enigma
+cipherTs = [ cycleT $ (^. caesar)
+           , cycleT $ (^. affine)
+           , cycleT $ (^. substitution)
+           , cycleT $ (^. stream)
+           , cycleT $ (^. vigenère)
+           , cycleT $ (^. enigma)
+           , notSelfT $ (^. caesar)
+           , notSelfT $ (^. affine)
+           , notSelfT $ (^. substitution)
+           , notSelfT $ (^. stream)
+           , notSelfT $ (^. vigenère)
+           , notSelfT $ (^. enigma)
+           , diffKeyT $ (^. caesar)
+           , diffKeyT $ (^. affine)
+           , diffKeyT $ (^. substitution)
+           , diffKeyT $ (^. stream)
+           , diffKeyT $ (^. vigenère)
+           , diffKeyT $ (^. enigma)
            , noSelfMappingT
            ]
 

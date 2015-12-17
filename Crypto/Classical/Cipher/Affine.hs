@@ -15,12 +15,13 @@
 module Crypto.Classical.Cipher.Affine where
 
 import           Control.Applicative
-import           Control.Lens
 import           Crypto.Classical.Types
 import           Crypto.Classical.Util
 import qualified Data.ByteString.Lazy.Char8 as B
 import           Data.Char
 import           Data.Modular
+import           Lens.Micro
+import           Lens.Micro.TH
 
 ---
 

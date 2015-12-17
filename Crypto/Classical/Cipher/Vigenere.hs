@@ -14,11 +14,12 @@
 module Crypto.Classical.Cipher.Vigenere where
 
 import           Control.Applicative
-import           Control.Lens
 import           Crypto.Classical.Cipher.Stream
 import           Crypto.Classical.Types
 import qualified Data.ByteString.Lazy.Char8 as B
 import           Data.Modular
+import           Lens.Micro
+import           Lens.Micro.TH
 
 ---
 
@@ -37,8 +38,8 @@ instance Monad Vigenère where
   Vigenère a >>= f = f a
 
 instance Cipher [ℤ/26] Vigenère where
-  encrypt k m = pure . view stream . encrypt (vigKey m k) $ m
-  decrypt k m = pure . view stream . decrypt (vigKey m k) $ m
+  encrypt k m = pure . (^. stream) . encrypt (vigKey m k) $ m
+  decrypt k m = pure . (^.  stream) . decrypt (vigKey m k) $ m
 
 -- | Determine a Vigenère key from a Stream key.
 -- Weakness here: key length is a factor of the plaintext length.

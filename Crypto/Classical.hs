@@ -3,7 +3,7 @@
 -- Copyright : (c) Colin Woodbury, 2015
 -- License   : BSD3
 -- Maintainer: Colin Woodbury <colingw@gmail.com>
-
+--
 -- A reexport of every module.
 
 module Crypto.Classical

@@ -13,7 +13,6 @@
 module Crypto.Classical.Cipher.Enigma where
 
 import           Control.Applicative
-import           Control.Lens
 import           Control.Monad.Trans.State.Lazy
 import           Crypto.Classical.Types
 import           Crypto.Classical.Util
@@ -23,6 +22,8 @@ import           Data.Map.Lazy (Map)
 import qualified Data.Map.Lazy as M
 import           Data.Maybe (fromJust)
 import           Data.Modular
+import           Lens.Micro
+import           Lens.Micro.TH
 
 ---
 
@@ -64,7 +65,7 @@ instance Cipher EnigmaKey Enigma where
 withInitPositions :: EnigmaKey -> EnigmaKey
 withInitPositions k = k & rotors .~ zipWith f (k ^. rotors) (k ^. settings)
   where f r s = (r & circuit %~ rotate (int s)
-                   & turnover -~ (int s))
+                   & turnover %~ (\n -> n - int s))
 
 -- | Turn the (machine's) right-most (left-most in List) Rotor by one
 -- position. If its turnover value wraps back to 25, then turn the next
@@ -72,7 +73,7 @@ withInitPositions k = k & rotors .~ zipWith f (k ^. rotors) (k ^. settings)
 turn :: [Rotor] -> [Rotor]
 turn []     = []
 turn (r:rs) = if (r' ^. turnover) == 25 then r' : turn rs else r' : rs
-  where r' = r & circuit %~ rotate 1 & turnover -~ 1
+  where r' = r & circuit %~ rotate 1 & turnover %~ (\n -> n - 1)
 
 -- | Rotate a Rotor by `n` positions. By subtracting 1 from every key
 -- and value, we perfectly simulate rotation. Example:
@@ -80,4 +81,4 @@ turn (r:rs) = if (r' ^. turnover) == 25 then r' : turn rs else r' : rs
 -- >>> rotate $ M.fromList [(0,2),(1,0),(2,3),(3,4),(4,1)]
 -- M.fromList [(4,1),(0,4),(1,2),(2,3),(3,0)]
 rotate :: ℤ/26 -> Map (ℤ/26) (ℤ/26) -> Map (ℤ/26) (ℤ/26)
-rotate n r = M.fromList (itoList r & traverse . both -~ n)
+rotate n r = M.fromList (M.toList r & traverse . both %~ (\n' -> n' - n))

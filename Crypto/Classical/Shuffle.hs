@@ -1,11 +1,11 @@
--- Code borrowed from `random-shuffle` and modified to match
--- crypto-random data types.
-
 -- |
 -- Module    : Crypto.Classical.Shuffle
 -- Copyright : (c) Colin Woodbury, 2015
 -- License   : BSD3
 -- Maintainer: Colin Woodbury <colingw@gmail.com>
+--
+-- Code borrowed from `random-shuffle` and modified to match
+-- crypto-random data types.
 
 module Crypto.Classical.Shuffle
   (

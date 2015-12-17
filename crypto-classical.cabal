@@ -1,6 +1,6 @@
 name:                crypto-classical
 
-version:             0.1.0
+version:             0.2.0
 
 synopsis:            An educational tool for studying classical cryptography schemes.
 
@@ -81,7 +81,8 @@ library
                      , containers >= 0.5.5.1
                      , crypto-numbers >= 0.2.7
                      , crypto-random
-                     , lens >= 4.7
+                     , microlens >= 0.2.0.0
+                     , microlens-th >= 0.2.1.1
                      , modular-arithmetic >= 1.2.0.0
                      , random
                      , random-shuffle >= 0.0.4

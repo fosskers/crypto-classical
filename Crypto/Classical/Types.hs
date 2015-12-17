@@ -34,7 +34,6 @@ module Crypto.Classical.Types
   , plugFrom
   ) where
 
-import           Control.Lens
 import           Crypto.Classical.Shuffle
 import           Crypto.Classical.Util
 import           Crypto.Number.Generate
@@ -47,6 +46,8 @@ import qualified Data.Map.Lazy as M
 import           Data.Modular
 import           Data.Monoid ((<>))
 import           Data.Text (Text)
+import           Lens.Micro
+import           Lens.Micro.TH
 
 ---
 
