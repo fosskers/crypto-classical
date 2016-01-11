@@ -26,11 +26,11 @@ description:         An educational tool for studying classical cryptography
                      ByteStrings without worrying much about types:
                      .
                      > > import Crypto.Classical
-                     > > import Control.Lens
+                     > > import Lens.Micro
                      > > :set -XOverloadedStrings
-                     > > (key <$> prng) >>= \k -> return (encrypt k "What a great day for an attack!" ^. enigma)
+                     > > (\k -> encrypt k "What a great day for an attack!" ^. enigma) . key <$> prng
                      > "PXQS D KXSGB CFC AYK XJ DEGMON!"
-                     > > (key <$> prng) >>= \k -> return (encrypt k "What a great day for an attack!" ^. caesar)
+                     > > (\k -> encrypt k "What a great day for an attack!" ^. caesar) . key <$> prng
                      > "RCVO V BMZVO YVT AJM VI VOOVXF!"
 
 homepage:            https://github.com/fosskers/crypto-classical
