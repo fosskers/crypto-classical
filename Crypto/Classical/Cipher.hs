@@ -1,8 +1,8 @@
 -- |
 -- Module    : Crypto.Classical
--- Copyright : (c) Colin Woodbury, 2015
+-- Copyright : (c) Colin Woodbury, 2015 - 2020
 -- License   : BSD3
--- Maintainer: Colin Woodbury <colingw@gmail.com>
+-- Maintainer: Colin Woodbury <colin@fosskers.ca>
 
 -- A reexport of every Cipher module.
 

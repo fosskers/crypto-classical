@@ -1,4 +1,5 @@
-resolver: lts-14.21
+# resolver: lts-14.21
+resolver: nightly-2020-01-25
 
 extra-deps:
   - modular-arithmetic-1.2.1.5

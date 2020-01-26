@@ -1,8 +1,8 @@
 -- |
 -- Module    : Crypto.Classical.Shuffle
--- Copyright : (c) Colin Woodbury, 2015
+-- Copyright : (c) Colin Woodbury, 2015 - 2020
 -- License   : BSD3
--- Maintainer: Colin Woodbury <colingw@gmail.com>
+-- Maintainer: Colin Woodbury <colin@fosskers.ca>
 --
 -- Code borrowed from `random-shuffle` and modified to match
 -- crypto-random data types.
@@ -29,13 +29,13 @@ data Tree a = Leaf !a
 
 -- Convert a sequence (e1...en) to a complete binary tree
 buildTree :: [a] -> Tree a
-buildTree = (fix growLevel) . (map Leaf)
+buildTree = fix growLevel . map Leaf
   where growLevel _ [node] = node
-        growLevel self l = self $ inner l
+        growLevel self l   = self $ inner l
 
-        inner [] = []
-        inner [e] = [e]
-        inner (e1 : e2 : es) = e1 `seq` e2 `seq` (join e1 e2) : inner es
+        inner []             = []
+        inner [e]            = [e]
+        inner (e1 : e2 : es) = e1 `seq` e2 `seq` join e1 e2 : inner es
 
         join l@(Leaf _)       r@(Leaf _)       = Node 2 l r
         join l@(Node ct _ _)  r@(Leaf _)       = Node (ct + 1) l r
@@ -57,7 +57,7 @@ shuffle' elements = shuffleTree (buildTree elements)
   where shuffleTree (Leaf e) [] = [e]
         shuffleTree tree (r : rs) =
           let (b, rest) = extractTree r tree
-          in b : (shuffleTree rest rs)
+          in b : shuffleTree rest rs
         shuffleTree _ _ = error "[shuffle] called with lists of different lengths"
 
         -- Extracts the n-th element from the tree and returns

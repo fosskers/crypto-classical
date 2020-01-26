@@ -1,11 +1,10 @@
-{-# LANGUAGE TupleSections #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 -- |
 -- Module    : Crypto.Classical.Test
--- Copyright : (c) Colin Woodbury, 2015
+-- Copyright : (c) Colin Woodbury, 2015 - 2020
 -- License   : BSD3
--- Maintainer: Colin Woodbury <colingw@gmail.com>
+-- Maintainer: Colin Woodbury <colin@fosskers.ca>
 
 module Crypto.Classical.Test
   (
@@ -21,7 +20,6 @@ module Crypto.Classical.Test
   , testAll
   ) where
 
-import           Lens.Micro
 import           Control.Monad (void)
 import           Crypto.Classical.Cipher
 import           Crypto.Classical.Letter
@@ -30,6 +28,7 @@ import           Crypto.Classical.Util
 import           Data.ByteString.Lazy.Char8 (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified Data.Foldable as F
+import           Lens.Micro
 import           Test.QuickCheck
 
 ---
@@ -46,24 +45,24 @@ testAll :: IO ()
 testAll = void . sequence $ cipherTs ++ otherTs
 
 cipherTs :: [IO ()]
-cipherTs = [ cycleT $ (^. caesar)
-           , cycleT $ (^. affine)
-           , cycleT $ (^. substitution)
-           , cycleT $ (^. stream)
-           , cycleT $ (^. vigenère)
-           , cycleT $ (^. enigma)
-           , notSelfT $ (^. caesar)
-           , notSelfT $ (^. affine)
-           , notSelfT $ (^. substitution)
-           , notSelfT $ (^. stream)
-           , notSelfT $ (^. vigenère)
-           , notSelfT $ (^. enigma)
-           , diffKeyT $ (^. caesar)
-           , diffKeyT $ (^. affine)
-           , diffKeyT $ (^. substitution)
-           , diffKeyT $ (^. stream)
-           , diffKeyT $ (^. vigenère)
-           , diffKeyT $ (^. enigma)
+cipherTs = [ cycleT (^. caesar)
+           , cycleT (^. affine)
+           , cycleT (^. substitution)
+           , cycleT (^. stream)
+           , cycleT (^. vigenère)
+           , cycleT (^. enigma)
+           , notSelfT (^. caesar)
+           , notSelfT (^. affine)
+           , notSelfT (^. substitution)
+           , notSelfT (^. stream)
+           , notSelfT (^. vigenère)
+           , notSelfT (^. enigma)
+           , diffKeyT (^. caesar)
+           , diffKeyT (^. affine)
+           , diffKeyT (^. substitution)
+           , diffKeyT (^. stream)
+           , diffKeyT (^. vigenère)
+           , diffKeyT (^. enigma)
            , noSelfMappingT
            ]
 
@@ -93,17 +92,17 @@ diffKeyT f = do
 noSelfMappingT :: IO ()
 noSelfMappingT = do
   k <- key <$> prng
-  quickCheck (\m -> all (\(a,b) -> a /= b) $ B.zip m (e _enigma k m))
+  quickCheck (\m -> all (uncurry (/=)) $ B.zip m (e _enigma k m))
 
 -- | Encrypt and unwrap a message.
 e :: Cipher k a => (a ByteString -> t) -> k -> ByteString -> t
 e f k m = f $ encrypt k m
 
 -- | A small manual test of Enigma.
-enig :: IO ByteString
-enig = do
-  k <- key <$> prng
-  return $ encrypt k "Das ist ein Wetterbericht. Heil Hitler." ^. enigma
+-- enig :: IO ByteString
+-- enig = do
+--   k <- key <$> prng
+--   return $ encrypt k "Das ist ein Wetterbericht. Heil Hitler." ^. enigma
 
 -- | A stretch should always double the length.
 stretchT :: IO ()

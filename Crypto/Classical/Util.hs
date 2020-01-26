@@ -1,11 +1,11 @@
+{-# LANGUAGE DataKinds     #-}
 {-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE DataKinds #-}
 
 -- |
 -- Module    : Crypto.Classical.Util
--- Copyright : (c) Colin Woodbury, 2015
+-- Copyright : (c) Colin Woodbury, 2015 - 2020
 -- License   : BSD3
--- Maintainer: Colin Woodbury <colingw@gmail.com>
+-- Maintainer: Colin Woodbury <colin@fosskers.ca>
 
 module Crypto.Classical.Util
   (
@@ -26,7 +26,6 @@ module Crypto.Classical.Util
   , stretch
   ) where
 
-import           Lens.Micro
 import           Crypto.Number.Generate
 import           Crypto.Number.ModArithmetic (inverseCoprimes)
 import           Crypto.Random
@@ -34,11 +33,12 @@ import           Data.Char
 import           Data.Map.Lazy (Map)
 import qualified Data.Map.Lazy as M
 import           Data.Modular
+import           Lens.Micro
 
 ---
 
 letter :: ℤ/26 -> Char
-letter l = chr $ ord 'A' + (fromIntegral $ unMod l)
+letter l = chr $ ord 'A' + fromIntegral (unMod l)
 
 int :: Char -> ℤ/26
 int c = toMod . toInteger $ ord c - ord 'A'

@@ -1,18 +1,17 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE DeriveFunctor         #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeOperators         #-}
 
 -- |
 -- Module    : Crypto.Classical.Cipher.Enigma
--- Copyright : (c) Colin Woodbury, 2015
+-- Copyright : (c) Colin Woodbury, 2015 - 2020
 -- License   : BSD3
--- Maintainer: Colin Woodbury <colingw@gmail.com>
+-- Maintainer: Colin Woodbury <colin@fosskers.ca>
 
 module Crypto.Classical.Cipher.Enigma where
 
-import           Control.Applicative
 import           Control.Monad.Trans.State.Lazy
 import           Crypto.Classical.Types
 import           Crypto.Classical.Util
@@ -64,8 +63,8 @@ instance Cipher EnigmaKey Enigma where
 -- the turnover of neighbouring Rotors as usual.
 withInitPositions :: EnigmaKey -> EnigmaKey
 withInitPositions k = k & rotors .~ zipWith f (k ^. rotors) (k ^. settings)
-  where f r s = (r & circuit %~ rotate (int s)
-                   & turnover %~ (\n -> n - int s))
+  where f r s = r & circuit %~ rotate (int s)
+                  & turnover %~ (\n -> n - int s)
 
 -- | Turn the (machine's) right-most (left-most in List) Rotor by one
 -- position. If its turnover value wraps back to 25, then turn the next

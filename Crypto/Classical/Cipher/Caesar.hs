@@ -1,26 +1,23 @@
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE DeriveFunctor         #-}
+{-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeOperators         #-}
 
 -- |
 -- Module    : Crypto.Classical.Caesar
--- Copyright : (c) Colin Woodbury, 2015
+-- Copyright : (c) Colin Woodbury, 2015 - 2020
 -- License   : BSD3
--- Maintainer: Colin Woodbury <colingw@gmail.com>
+-- Maintainer: Colin Woodbury <colin@fosskers.ca>
 
 module Crypto.Classical.Cipher.Caesar where
 
-import           Control.Applicative
 import           Crypto.Classical.Types
 import           Crypto.Classical.Util
 import qualified Data.ByteString.Lazy.Char8 as B
 import           Data.Char
 import           Data.Modular
-import           Lens.Micro
 import           Lens.Micro.TH
 
 ---

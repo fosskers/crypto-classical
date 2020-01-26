@@ -1,26 +1,23 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE DeriveFunctor         #-}
+{-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeOperators         #-}
 
 -- |
 -- Module    : Crypto.Classical.Stream
--- Copyright : (c) Colin Woodbury, 2015
+-- Copyright : (c) Colin Woodbury, 2015 - 2020
 -- License   : BSD3
--- Maintainer: Colin Woodbury <colingw@gmail.com>
+-- Maintainer: Colin Woodbury <colin@fosskers.ca>
 
 module Crypto.Classical.Cipher.Stream where
 
-import           Control.Applicative
 import           Crypto.Classical.Types
 import           Crypto.Classical.Util
 import qualified Data.ByteString.Lazy.Char8 as B
 import           Data.Char
 import           Data.Modular
-import           Lens.Micro
 import           Lens.Micro.TH
 
 ---
@@ -48,7 +45,7 @@ instance Cipher [ℤ/26] Stream where
   encrypt k = pure . B.pack . f k . B.unpack
     where f _ [] = []
           f [] _ = []
-          f (kc:ks) (m:ms) 
+          f (kc:ks) (m:ms)
             | isLower m = f (kc:ks) (toUpper m : ms)
             | not $ isLetter m = m : f ks ms
             | otherwise = letter (int m + kc) : f ks ms

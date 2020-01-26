@@ -1,19 +1,19 @@
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE DeriveFunctor         #-}
+{-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeApplications      #-}
+{-# LANGUAGE TypeOperators         #-}
 
 -- |
 -- Module    : Crypto.Classical.Vigenere
--- Copyright : (c) Colin Woodbury, 2015
+-- Copyright : (c) Colin Woodbury, 2015 - 2020
 -- License   : BSD3
--- Maintainer: Colin Woodbury <colingw@gmail.com>
+-- Maintainer: Colin Woodbury <colin@fosskers.ca>
 
 module Crypto.Classical.Cipher.Vigenere where
 
-import           Control.Applicative
 import           Crypto.Classical.Cipher.Stream
 import           Crypto.Classical.Types
 import qualified Data.ByteString.Lazy.Char8 as B
@@ -44,5 +44,5 @@ instance Cipher [ℤ/26] Vigenère where
 -- | Determine a Vigenère key from a Stream key.
 -- Weakness here: key length is a factor of the plaintext length.
 vigKey :: B.ByteString -> [ℤ/26] -> [ℤ/26]
-vigKey m k = concat . repeat . take (n+1) $ k
-  where n = floor . logBase 2 . fromIntegral . B.length $ m
+vigKey m = concat . repeat . take (n+1)
+  where n = floor @Double . logBase 2 . fromIntegral . B.length $ m

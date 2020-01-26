@@ -1,17 +1,15 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DataKinds              #-}
+{-# LANGUAGE FlexibleInstances      #-}
 {-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE OverloadedStrings      #-}
+{-# LANGUAGE TemplateHaskell        #-}
+{-# LANGUAGE TypeOperators          #-}
 
 -- |
 -- Module    : Crypto.Classical.Types
--- Copyright : (c) Colin Woodbury, 2015
+-- Copyright : (c) Colin Woodbury, 2015 - 2020
 -- License   : BSD3
--- Maintainer: Colin Woodbury <colingw@gmail.com>
+-- Maintainer: Colin Woodbury <colin@fosskers.ca>
 
 module Crypto.Classical.Types
   (
@@ -44,7 +42,6 @@ import           Data.List ((\\))
 import           Data.Map.Lazy (Map)
 import qualified Data.Map.Lazy as M
 import           Data.Modular
-import           Data.Monoid ((<>))
 import           Data.Text (Text)
 import           Lens.Micro
 import           Lens.Micro.TH
@@ -151,7 +148,7 @@ type Plugboard = Map (ℤ/26) (ℤ/26)
 -- 3. The Reflector model in use.
 -- 4. Plugboard settings (pairs of characters).
 data EnigmaKey = EnigmaKey { _rotors    :: [Rotor]
-                           , _settings  :: [Char]
+                           , _settings  :: String
                            , _reflector :: Reflector
                            , _plugboard :: Plugboard
                            } deriving (Eq,Show)
@@ -167,7 +164,7 @@ instance Key EnigmaKey where
           ss = randChars g rn
 
 -- | Generate random start positions for the Rotors.
-randChars :: CPRG g => g -> Int -> [Char]
+randChars :: CPRG g => g -> Int -> String
 randChars _ 0 = []
 randChars g n = c : randChars g' (n-1)
   where (c,g') = generateBetween g 0 25 & _1 %~ letter . toMod
@@ -180,7 +177,7 @@ randPlug g = M.fromList (pairs <> singles)
   where shuffled = shuffle g [0..25] 26
         (ps,ss)  = (take 20 shuffled, drop 20 shuffled)
         pairs    = foldr (\(k,v) acc -> (k,v) : (v,k) : acc) [] $ uniZip ps
-        singles  = foldr (\v acc -> (v,v) : acc) [] ss
+        singles  = map (\v -> (v,v)) ss
 
 -- | Given a list of letter pairs, generates a Plugboard.
 -- Any letters left out of the pair list will be mapped to themselves.
