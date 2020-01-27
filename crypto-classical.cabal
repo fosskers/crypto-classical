@@ -1,6 +1,6 @@
-cabal-version: 2.2
-name:          crypto-classical
-version:       0.2.1
+cabal-version:      2.2
+name:               crypto-classical
+version:            0.2.1
 synopsis:
   An educational tool for studying classical cryptography schemes.
 
@@ -34,13 +34,16 @@ description:
   > > (\k -> encrypt k "What a great day for an attack!" ^. caesar) . key <$> prng
   > "RCVO V BMZVO YVT AJM VI VOOVXF!"
 
-homepage:      https://github.com/fosskers/crypto-classical
-license:       BSD-3-Clause
-license-file:  LICENSE
-author:        Colin Woodbury
-maintainer:    colin@fosskers.ca
-category:      Cryptography
-build-type:    Simple
+homepage:           https://github.com/fosskers/crypto-classical
+license:            BSD-3-Clause
+license-file:       LICENSE
+author:             Colin Woodbury
+maintainer:         colin@fosskers.ca
+category:           Cryptography
+build-type:         Simple
+extra-source-files:
+  README.md
+  CHANGELOG.md
 
 common commons
   default-language: Haskell2010
