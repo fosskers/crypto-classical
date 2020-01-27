@@ -12,13 +12,13 @@
 
 module Crypto.Classical.Cipher.Enigma where
 
-import           Control.Monad.Trans.State.Lazy
+import           Control.Monad.Trans.State.Strict
 import           Crypto.Classical.Types
 import           Crypto.Classical.Util
 import qualified Data.ByteString.Lazy.Char8 as B
 import           Data.Char
-import           Data.Map.Lazy (Map)
-import qualified Data.Map.Lazy as M
+import           Data.Map.Strict (Map)
+import qualified Data.Map.Strict as M
 import           Data.Maybe (fromJust)
 import           Data.Modular
 import           Lens.Micro
@@ -26,7 +26,7 @@ import           Lens.Micro.TH
 
 ---
 
-newtype Enigma a = Enigma { _enigma :: a } deriving (Eq,Show,Functor)
+newtype Enigma a = Enigma { _enigma :: a } deriving (Eq, Show, Functor)
 makeLenses ''Enigma
 
 instance Applicative Enigma where

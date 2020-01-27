@@ -6,19 +6,7 @@
 -- License   : BSD3
 -- Maintainer: Colin Woodbury <colin@fosskers.ca>
 
-module Crypto.Classical.Test
-  (
-    -- * Cipher Tests
-    cycleT
-  , notSelfT
-  , diffKeyT
-  , noSelfMappingT
-    -- * Misc. Tests
-  , stretchT
-  , plugFromT
-    -- * Batch Tests
-  , testAll
-  ) where
+module Main where
 
 import           Control.Monad (void)
 import           Crypto.Classical.Cipher
@@ -27,6 +15,7 @@ import           Crypto.Classical.Types
 import           Crypto.Classical.Util
 import           Data.ByteString.Lazy.Char8 (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as B
+import           Data.Char
 import qualified Data.Foldable as F
 import           Lens.Micro
 import           Test.QuickCheck
@@ -36,13 +25,21 @@ import           Test.QuickCheck
 -- Not to be exported, as this only generates ByteStrings
 -- of capital Ascii characters.
 instance Arbitrary ByteString where
+
   arbitrary = B.pack . map _char <$> arbitrary
+instance Arbitrary Letter where
+  arbitrary = Letter <$> c
+    where c = do
+            c' <- arbitrary
+            if isAsciiUpper c'
+               then return c'
+               else c
 
 ---
 
 -- | Run every test on every Cipher.
-testAll :: IO ()
-testAll = void . sequence $ cipherTs ++ otherTs
+main :: IO ()
+main = void . sequence $ cipherTs ++ otherTs
 
 cipherTs :: [IO ()]
 cipherTs = [ cycleT (^. caesar)
