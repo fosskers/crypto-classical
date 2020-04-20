@@ -2,7 +2,6 @@
 {-# LANGUAGE DeriveFunctor         #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE TypeOperators         #-}
 
@@ -18,8 +17,6 @@ import           Crypto.Classical.Cipher.Stream
 import           Crypto.Classical.Types
 import qualified Data.ByteString.Lazy.Char8 as B
 import           Data.Modular
-import           Lens.Micro
-import           Lens.Micro.TH
 
 ---
 
@@ -27,7 +24,6 @@ import           Lens.Micro.TH
 -- shorter than the length of the plaintext. The key is repeated for
 -- the entire length of the plaintext.
 newtype Vigenère a = Vigenère { _vigenère :: a } deriving (Eq,Show,Functor)
-makeLenses ''Vigenère
 
 instance Applicative Vigenère where
   pure = Vigenère
@@ -38,8 +34,8 @@ instance Monad Vigenère where
   Vigenère a >>= f = f a
 
 instance Cipher [ℤ/26] Vigenère where
-  encrypt k m = pure . (^. stream) . encrypt (vigKey m k) $ m
-  decrypt k m = pure . (^.  stream) . decrypt (vigKey m k) $ m
+  encrypt k m = pure . _stream . encrypt (vigKey m k) $ m
+  decrypt k m = pure . _stream . decrypt (vigKey m k) $ m
 
 -- | Determine a Vigenère key from a Stream key.
 -- Weakness here: key length is a factor of the plaintext length.

@@ -2,7 +2,6 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE TemplateHaskell       #-}
 
 -- |
 -- Module    : Crypto.Classical.Substitution
@@ -18,15 +17,13 @@ import qualified Data.ByteString.Lazy.Char8 as B
 import           Data.Char
 import           Data.Map.Lazy (Map)
 import qualified Data.Map.Lazy as M
-import           Lens.Micro.TH
 
 ---
 
 -- | A Cipher whose key is a (pseudo)random mapping of characters
 -- to other characters. A character may map to itself.
 newtype Substitution a = Substitution { _substitution :: a }
-                       deriving (Eq,Show,Functor)
-makeLenses ''Substitution
+  deriving (Eq,Show,Functor)
 
 instance Applicative Substitution where
   pure = Substitution

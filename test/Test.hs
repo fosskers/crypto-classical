@@ -17,7 +17,6 @@ import           Data.ByteString.Lazy.Char8 (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as B
 import           Data.Char
 import qualified Data.Foldable as F
-import           Lens.Micro
 import           Test.QuickCheck
 
 ---
@@ -42,24 +41,24 @@ main :: IO ()
 main = void . sequence $ cipherTs ++ otherTs
 
 cipherTs :: [IO ()]
-cipherTs = [ cycleT (^. caesar)
-           , cycleT (^. affine)
-           , cycleT (^. substitution)
-           , cycleT (^. stream)
-           , cycleT (^. vigenère)
-           , cycleT (^. enigma)
-           , notSelfT (^. caesar)
-           , notSelfT (^. affine)
-           , notSelfT (^. substitution)
-           , notSelfT (^. stream)
-           , notSelfT (^. vigenère)
-           , notSelfT (^. enigma)
-           , diffKeyT (^. caesar)
-           , diffKeyT (^. affine)
-           , diffKeyT (^. substitution)
-           , diffKeyT (^. stream)
-           , diffKeyT (^. vigenère)
-           , diffKeyT (^. enigma)
+cipherTs = [ cycleT _caesar
+           , cycleT _affine
+           , cycleT _substitution
+           , cycleT _stream
+           , cycleT _vigenère
+           , cycleT _enigma
+           , notSelfT _caesar
+           , notSelfT _affine
+           , notSelfT _substitution
+           , notSelfT _stream
+           , notSelfT _vigenère
+           , notSelfT _enigma
+           , diffKeyT _caesar
+           , diffKeyT _affine
+           , diffKeyT _substitution
+           , diffKeyT _stream
+           , diffKeyT _vigenère
+           , diffKeyT _enigma
            , noSelfMappingT
            ]
 
@@ -110,6 +109,7 @@ stretchT = quickCheck prop
 -- | Any list of pairs should always result in a Plugboard of 26 mappings.
 plugFromT :: IO ()
 plugFromT = quickCheck prop
-  where prop :: [(Letter,Letter)] -> Bool
-        prop xs = let xs' = xs & traverse . both %~ _char in
-                   F.length (plugFrom xs') == 26
+  where
+    prop :: [(Letter, Letter)] -> Bool
+    prop xs = let xs' = map (both _char) xs
+      in F.length (plugFrom xs') == 26

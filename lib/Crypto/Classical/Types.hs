@@ -2,7 +2,6 @@
 {-# LANGUAGE FlexibleInstances      #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE OverloadedStrings      #-}
-{-# LANGUAGE TemplateHaskell        #-}
 {-# LANGUAGE TypeOperators          #-}
 
 -- |
@@ -22,13 +21,6 @@ module Crypto.Classical.Types
   , Rotor(..)
   , Reflector
   , Plugboard
-  , name
-  , turnover
-  , circuit
-  , rotors
-  , settings
-  , reflector
-  , plugboard
   , plugFrom
   ) where
 
@@ -39,12 +31,10 @@ import           Crypto.Random (CPRG)
 import           Data.ByteString.Lazy (ByteString)
 import           Data.Char (isUpper)
 import           Data.List ((\\))
-import           Data.Map.Lazy (Map)
-import qualified Data.Map.Lazy as M
+import           Data.Map.Strict (Map)
+import qualified Data.Map.Strict as M
 import           Data.Modular
 import           Data.Text (Text)
-import           Lens.Micro
-import           Lens.Micro.TH
 
 ---
 
@@ -69,8 +59,8 @@ instance Key (ℤ/26) where
 -- `a` must be coprime with 26, or else a^-1 won't exist and
 -- and we can't decrypt.
 instance Key (ℤ/26,ℤ/26) where
-  key g = (a,b) & _1 %~ toMod
-    where a = head $ shuffle g ([1,3..25] \\ [13]) 12
+  key g = (a, b)
+    where a = toMod . head $ shuffle g ([1,3..25] \\ [13]) 12
           b = key g
 
 -- | Key for Substitution Cipher. The Key is the Mapping itself.
@@ -79,51 +69,52 @@ instance Key (Map Char Char) where
 
 -- | Key for Stream/Vigenère Cipher.
 instance Key [ℤ/26] where
-  key g = n : key g'
-    where (n,g') = generateMax g 26 & _1 %~ toMod
+  key g = toMod n : key g'
+    where (n,g') = generateMax g 26
 
 ---
 
--- | A Rotor (German: Walze) is a wheel labelled A to Z, with internal
--- wirings from each entry point to exit point. There is also a turnover
--- point, upon which a Rotor would turn its left neighbour as well.
--- Typically said turnover point is thought of in terms of letters
--- (e.g. Q->R for Rotor I). Here, we represent the turnover point as
--- a distance from A (or 0, the first entry point). As the Rotor rotates,
--- this value decrements. When it rolls back to 25 (modular arithmetic),
--- we rotate the next Rotor.
+-- | A Rotor (German: Walze) is a wheel labelled A to Z, with internal wirings
+-- from each entry point to exit point. There is also a turnover point, upon
+-- which a Rotor would turn its left neighbour as well. Typically said turnover
+-- point is thought of in terms of letters (e.g. Q->R for Rotor I). Here, we
+-- represent the turnover point as a distance from A (or 0, the first entry
+-- point). As the Rotor rotates, this value decrements. When it rolls back to 25
+-- (modular arithmetic), we rotate the next Rotor.
 --
--- Our Rotors are letter-agnostic. That is, they only map numeric
--- entry points to exit points. This allows us to simulate rotation
--- very simply with Lenses.
-data Rotor = Rotor { _name     :: Text
-                   , _turnover :: ℤ/26
-                   , _circuit  :: Map (ℤ/26) (ℤ/26) } deriving (Eq,Show)
-makeLenses ''Rotor
+-- Our Rotors are letter-agnostic. That is, they only map numeric entry points
+-- to exit points.
+data Rotor = Rotor
+  { _name     :: Text
+  , _turnover :: ℤ/26
+  , _circuit  :: Map (ℤ/26) (ℤ/26) }
+  deriving (Eq, Show)
 
 -- | Rotor I: Turnover from Q to R.
 rI :: Rotor
-rI = Rotor "I" (int 'Q') $ M.fromList (pairs & traverse . both %~ int)
-  where pairs = zip "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "EKMFLGDQVZNTOWYHXUSPAIBRCJ"
+rI = Rotor "I" (int 'Q') . M.fromList $ map (both int) pairs
+  where
+    pairs :: [(Char, Char)]
+    pairs = zip "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "EKMFLGDQVZNTOWYHXUSPAIBRCJ"
 
 -- | Rotor II: Turnover from E to F.
 rII :: Rotor
-rII = Rotor "II" (int 'E') $ M.fromList (pairs & traverse . both %~ int)
+rII = Rotor "II" (int 'E') . M.fromList $ map (both int) pairs
   where pairs = zip "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "AJDKSIRUXBLHWTMCQGZNPYFVOE"
 
 -- | Rotor III: Turnover from V to W.
 rIII :: Rotor
-rIII = Rotor "III" (int 'V') $ M.fromList (pairs & traverse . both %~ int)
+rIII = Rotor "III" (int 'V') . M.fromList $ map (both int) pairs
   where pairs = zip "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "BDFHJLCPRTXVZNYEIWGAKMUSQO"
 
 -- | Rotor IV: Turnover from J to K.
 rIV :: Rotor
-rIV = Rotor "IV" (int 'J') $ M.fromList (pairs & traverse . both %~ int)
+rIV = Rotor "IV" (int 'J') . M.fromList $ map (both int) pairs
   where pairs = zip "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "ESOVPZJAYQUIRHXLNFTGKDCMWB"
 
 -- | Rotor V: Turnover from Z to A.
 rV :: Rotor
-rV = Rotor "V" (int 'Z') $ M.fromList (pairs & traverse . both %~ int)
+rV = Rotor "V" (int 'Z') . M.fromList $ map (both int) pairs
   where pairs = zip "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "VZBRGITYUPSDNHLXAWMJQOFECK"
 
 -- | A unmoving map, similar to the Rotors, which feeds the electrical
@@ -134,7 +125,7 @@ rV = Rotor "V" (int 'Z') $ M.fromList (pairs & traverse . both %~ int)
 type Reflector = Map (ℤ/26) (ℤ/26)
 
 ukwB :: Reflector
-ukwB = M.fromList (pairs & traverse . both %~ int)
+ukwB = M.fromList $ map (both int) pairs
   where pairs = zip "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "YRUHQSLDPXNGOKMIEBFZCWVJAT"
 
 -- | A set of 10 pairs of connected letters which would map letters
@@ -147,12 +138,12 @@ type Plugboard = Map (ℤ/26) (ℤ/26)
 -- 2. Initial settings of those Rotors.
 -- 3. The Reflector model in use.
 -- 4. Plugboard settings (pairs of characters).
-data EnigmaKey = EnigmaKey { _rotors    :: [Rotor]
-                           , _settings  :: String
-                           , _reflector :: Reflector
-                           , _plugboard :: Plugboard
-                           } deriving (Eq,Show)
-makeLenses ''EnigmaKey
+data EnigmaKey = EnigmaKey
+  { _rotors    :: [Rotor]
+  , _settings  :: String
+  , _reflector :: Reflector
+  , _plugboard :: Plugboard }
+  deriving (Eq, Show)
 
 -- | Note that the randomly generated initial Rotor positions are not
 -- applied to the Rotors when the key is generated. They have to
@@ -166,8 +157,8 @@ instance Key EnigmaKey where
 -- | Generate random start positions for the Rotors.
 randChars :: CPRG g => g -> Int -> String
 randChars _ 0 = []
-randChars g n = c : randChars g' (n-1)
-  where (c,g') = generateBetween g 0 25 & _1 %~ letter . toMod
+randChars g n = letter (toMod c) : randChars g' (n-1)
+  where (c,g') = generateBetween g 0 25
 
 -- | Generate settings for the Plugboard. Ten pairs of characters will
 -- be mapped to each other, and the remaining six characters will map

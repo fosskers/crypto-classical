@@ -54,7 +54,6 @@ common commons
   build-depends:
     , base        >=4.7     && <4.14
     , bytestring
-    , microlens   >=0.2.0.0
 
 library
   import:          commons
@@ -78,7 +77,6 @@ library
     , containers          >=0.5.5.1
     , crypto-numbers      >=0.2.7
     , crypto-random
-    , microlens-th        >=0.2.1.1
     , modular-arithmetic  >=1.2.0.0
     , text                >=1.2.0.4
     , transformers        >=0.4.2.0

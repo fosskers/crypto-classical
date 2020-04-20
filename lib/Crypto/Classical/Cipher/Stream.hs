@@ -2,7 +2,6 @@
 {-# LANGUAGE DeriveFunctor         #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeOperators         #-}
 
 -- |
@@ -18,7 +17,6 @@ import           Crypto.Classical.Util
 import qualified Data.ByteString.Lazy.Char8 as B
 import           Data.Char
 import           Data.Modular
-import           Lens.Micro.TH
 
 ---
 
@@ -31,7 +29,6 @@ import           Lens.Micro.TH
 -- >>> encrypt [1,2,3] "ABCDEF" ^. stream
 -- "BDF"
 newtype Stream a = Stream { _stream :: a } deriving (Eq,Show,Functor)
-makeLenses ''Stream
 
 instance Applicative Stream where
   pure = Stream

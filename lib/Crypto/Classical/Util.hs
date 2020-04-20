@@ -24,6 +24,7 @@ module Crypto.Classical.Util
     -- * Miscellaneous
   , uniZip
   , stretch
+  , both
   ) where
 
 import           Crypto.Number.Generate
@@ -33,7 +34,6 @@ import           Data.Char
 import           Data.Map.Lazy (Map)
 import qualified Data.Map.Lazy as M
 import           Data.Modular
-import           Lens.Micro
 
 ---
 
@@ -54,11 +54,12 @@ prng = fmap cprgCreate createEntropyPool
 -- independent sample from a uniform random distribution
 -- [0..n-i]
 rseq :: CPRG g => g -> Integer -> [Integer]
-rseq g n = rseq' g (n - 1) ^.. traverse . _1
-  where rseq' :: CPRG g => g -> Integer -> [(Integer, g)]
-        rseq' _ 0  = []
-        rseq' g' i = (j, g') : rseq' g'' (i - 1)
-          where (j, g'') = generateBetween g' 0 i
+rseq g n = map fst $ rseq' g (n - 1)
+  where
+    rseq' :: CPRG g => g -> Integer -> [(Integer, g)]
+    rseq' _ 0  = []
+    rseq' g' i = (j, g') : rseq' g'' (i - 1)
+      where (j, g'') = generateBetween g' 0 i
 
 -- | Invert a Map. Keys become values, values become keys.
 -- Note that this operation may result in a smaller Map than the original.
@@ -98,3 +99,6 @@ uniZip (a:b:xs) = (a,b) : uniZip xs
 -- [1,1,2,2,3,3,4,4]
 stretch :: [a] -> [a]
 stretch = foldr (\x acc -> x : x : acc) []
+
+both :: (a -> b) -> (a, a) -> (b, b)
+both f (x, y) = (f x, f y)

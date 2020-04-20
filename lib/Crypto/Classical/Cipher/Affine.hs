@@ -3,7 +3,6 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeOperators         #-}
 
 -- |
@@ -19,7 +18,6 @@ import           Crypto.Classical.Util
 import qualified Data.ByteString.Lazy.Char8 as B
 import           Data.Char
 import           Data.Modular
-import           Lens.Micro.TH
 
 ---
 
@@ -30,7 +28,6 @@ import           Lens.Micro.TH
 --
 -- Also known as a Linear Cipher.
 newtype Affine a = Affine { _affine :: a } deriving (Eq,Show,Functor)
-makeLenses ''Affine
 
 instance Applicative Affine where
   pure = Affine

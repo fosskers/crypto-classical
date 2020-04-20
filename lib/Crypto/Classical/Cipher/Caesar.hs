@@ -2,7 +2,6 @@
 {-# LANGUAGE DeriveFunctor         #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeOperators         #-}
 
 -- |
@@ -18,7 +17,6 @@ import           Crypto.Classical.Util
 import qualified Data.ByteString.Lazy.Char8 as B
 import           Data.Char
 import           Data.Modular
-import           Lens.Micro.TH
 
 ---
 
@@ -28,7 +26,6 @@ import           Lens.Micro.TH
 -- >>> encrypt 3 "ABCDEFGHIJKLMNOPQRSTUVWXYZ" ^. caesar
 -- "DEFGHIJKLMNOPQRSTUVWXYZABC"
 newtype Caesar a = Caesar { _caesar :: a } deriving (Eq,Show,Functor)
-makeLenses ''Caesar
 
 instance Applicative Caesar where
   pure = Caesar
