@@ -31,8 +31,8 @@ import           Crypto.Number.Generate
 import           Crypto.Number.ModArithmetic (inverseCoprimes)
 import           Crypto.Random
 import           Data.Char
-import           Data.Map.Lazy (Map)
-import qualified Data.Map.Lazy as M
+import           Data.Map.Strict (Map)
+import qualified Data.Map.Strict as M
 import           Data.Modular
 
 ---

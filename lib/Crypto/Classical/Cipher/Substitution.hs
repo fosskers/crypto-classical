@@ -15,8 +15,8 @@ import           Crypto.Classical.Types
 import           Crypto.Classical.Util
 import qualified Data.ByteString.Lazy.Char8 as B
 import           Data.Char
-import           Data.Map.Lazy (Map)
-import qualified Data.Map.Lazy as M
+import           Data.Map.Strict (Map)
+import qualified Data.Map.Strict as M
 
 ---
 
