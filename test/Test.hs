@@ -98,7 +98,7 @@ e f k m = f $ encrypt k m
 -- enig :: IO ByteString
 -- enig = do
 --   k <- key <$> prng
---   return $ encrypt k "Das ist ein Wetterbericht. Heil Hitler." ^. enigma
+--   pure . _enigma $ encrypt k "Das ist ein Wetterbericht. Heil Hitler."
 
 -- | A stretch should always double the length.
 stretchT :: IO ()

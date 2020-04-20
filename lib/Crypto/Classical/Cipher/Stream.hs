@@ -26,7 +26,7 @@ import           Data.Modular
 -- If for whatever reason a key of finite length is given to `encrypt`,
 -- the ciphertext is cutoff to match the key length. Example:
 --
--- >>> encrypt [1,2,3] "ABCDEF" ^. stream
+-- >>> _stream $ encrypt [1,2,3] "ABCDEF"
 -- "BDF"
 newtype Stream a = Stream { _stream :: a } deriving (Eq,Show,Functor)
 

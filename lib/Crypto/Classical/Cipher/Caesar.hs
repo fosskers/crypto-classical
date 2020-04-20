@@ -23,7 +23,7 @@ import           Data.Modular
 -- | A simple Shift Cipher. The key is a number by which to shift each
 -- letter in the alphabet. Example:
 --
--- >>> encrypt 3 "ABCDEFGHIJKLMNOPQRSTUVWXYZ" ^. caesar
+-- >>> _caesar $ encrypt 3 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 -- "DEFGHIJKLMNOPQRSTUVWXYZABC"
 newtype Caesar a = Caesar { _caesar :: a } deriving (Eq,Show,Functor)
 

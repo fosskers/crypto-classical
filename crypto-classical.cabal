@@ -1,6 +1,6 @@
 cabal-version:      2.2
 name:               crypto-classical
-version:            0.2.1
+version:            0.3.0
 synopsis:
   An educational tool for studying classical cryptography schemes.
 
@@ -29,9 +29,9 @@ description:
   > > import Crypto.Classical
   > > import Lens.Micro
   > > :set -XOverloadedStrings
-  > > (\k -> encrypt k "What a great day for an attack!" ^. enigma) . key <$> prng
+  > > (\k -> _enigma $ encrypt k "What a great day for an attack!") . key <$> prng
   > "PXQS D KXSGB CFC AYK XJ DEGMON!"
-  > > (\k -> encrypt k "What a great day for an attack!" ^. caesar) . key <$> prng
+  > > (\k -> _caesar $ encrypt k "What a great day for an attack!") . key <$> prng
   > "RCVO V BMZVO YVT AJM VI VOOVXF!"
 
 homepage:           https://github.com/fosskers/crypto-classical
